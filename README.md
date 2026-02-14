@@ -24,18 +24,25 @@ Agri-Senta is a Smart Palengke Dashboard for tracking and forecasting commodity 
 
 ## Implemented Baseline
 
-- Backend startup auto-creates tables for `regions` and `commodities`
-- Backend seeds initial regions and commodities
+- Backend startup auto-creates tables for `regions`, `commodities`, `markets`, `daily_prices`, `price_forecasts`, and `scrape_logs`
+- Backend seeds initial regions, commodities, and markets
 - API endpoints:
   - `GET /api/v1/health`
   - `GET /api/v1/commodities`
   - `GET /api/v1/regions`
+  - `POST /api/v1/admin/scrape/trigger?source=DA|PSA`
+  - `GET /api/v1/admin/scrape/logs`
 - Frontend route shell:
   - `/`, `/prices`, `/compare`, `/forecast`, `/forecast/[commodityId]`, `/trends/[commodityId]`, `/analytics`, `/about`
 
+## Phase 2 Scaffolding Included
+
+- DA/PSA scraper modules and data cleaner
+- Upsert loader for `daily_prices`
+- Scrape log writer and basic ingestion service orchestration
+- APScheduler wiring for daily scrape schedule (Asia/Manila)
+
 ## Next Build Steps
 
-- Add `markets`, `daily_prices`, `price_forecasts`, and `scrape_logs` models
 - Add price history + analytics endpoints
-- Add scraper ingestion pipeline (DA + PSA)
 - Add forecast training and prediction services

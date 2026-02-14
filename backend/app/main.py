@@ -7,6 +7,7 @@ from app.config import get_settings
 from app.database import AsyncSessionLocal, engine
 from app.models.base import Base
 from app.routers import api_router
+from app.scraping.scheduler import create_scheduler
 from app.utils.seed_data import seed_reference_data
 
 settings = get_settings()
@@ -14,13 +15,19 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    scheduler = create_scheduler()
+
     async with engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
 
     async with AsyncSessionLocal() as session:
         await seed_reference_data(session)
 
+    scheduler.start()
+
     yield
+
+    scheduler.shutdown(wait=False)
 
 
 app = FastAPI(title=settings.app_name, version=settings.app_version, lifespan=lifespan)
