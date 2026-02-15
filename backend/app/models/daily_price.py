@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date as dt_date
 from decimal import Decimal
 
 from sqlalchemy import Date, ForeignKey, Numeric, String, UniqueConstraint
@@ -29,5 +29,5 @@ class DailyPrice(TimestampMixin, Base):
     price_avg: Mapped[Decimal | None] = mapped_column(Numeric(10, 2), nullable=True)
     price_prevailing: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
 
-    date: Mapped[date] = mapped_column(Date, nullable=False, index=True)
+    date: Mapped[dt_date] = mapped_column(Date, nullable=False, index=True)
     source: Mapped[str] = mapped_column(String(40), nullable=False)

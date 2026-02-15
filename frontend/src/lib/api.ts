@@ -1,8 +1,14 @@
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+const SERVER_API_BASE_URL =
+  process.env.INTERNAL_API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+
+const CLIENT_API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+
+function resolveApiBaseUrl(): string {
+  return typeof window === "undefined" ? SERVER_API_BASE_URL : CLIENT_API_BASE_URL;
+}
 
 export async function fetchFromApi<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${resolveApiBaseUrl()}${path}`, {
     next: { revalidate: 3600 },
   });
 
