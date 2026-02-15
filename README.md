@@ -74,6 +74,16 @@ Agri-Senta is a Smart Palengke Dashboard for tracking and forecasting commodity 
 - Forecast pages now render summary table and per-commodity confidence-band chart
 - Trends page now renders historical line chart and table by commodity
 
+## Phase 6 Reliability & QA Included
+
+- Frontend global `loading.tsx`, `error.tsx`, and `not-found.tsx` routes for resilient UX
+- Docker Compose healthchecks for `postgres`, `backend`, and `frontend`
+- Service startup dependency ordering based on health state (`depends_on.condition: service_healthy`)
+- Backend smoke/unit tests:
+  - `tests/test_health_router.py`
+  - `tests/test_ml_forecast.py`
+- Pytest config added in `backend/pytest.ini`
+
 ## Next Build Steps
 
-- Add advanced filters (commodity/region/date) and richer UI components
+- Add advanced filters (commodity/region/date) and richer dashboard UI components
