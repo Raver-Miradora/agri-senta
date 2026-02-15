@@ -17,27 +17,30 @@ export default async function AnalyticsPage() {
     }));
 
   return (
-    <section>
-      <h1>Analytics</h1>
-      <p>Weekly variance and detected price spike events from live data.</p>
+    <section className="page">
+      <div className="page-header">
+        <h1>Analytics</h1>
+        <p className="subtitle">Weekly variance and detected price spike events from live data.</p>
+      </div>
 
-      <div className="card" style={{ marginTop: "1rem" }}>
-        <h3>Weekly Percentage Change (WoW)</h3>
+      <div className="card">
+        <h3 className="section-title">Weekly Percentage Change (WoW)</h3>
         <SimpleLineChart data={lineData} xKey="week" yKey="wow_change" color="#CE1126" />
       </div>
 
-      <div className="card" style={{ marginTop: "1rem" }}>
-        <h3>Detected Spikes</h3>
+      <div className="card">
+        <h3 className="section-title">Detected Spikes</h3>
         {spikes.length === 0 ? (
-          <p>No spikes detected from current seeded data.</p>
+          <p className="empty">No spikes detected from current seeded data.</p>
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <div className="table-wrap">
+            <table className="data-table">
             <thead>
               <tr>
-                <th style={{ textAlign: "left" }}>Date</th>
-                <th style={{ textAlign: "left" }}>Commodity ID</th>
-                <th style={{ textAlign: "left" }}>Region ID</th>
-                <th style={{ textAlign: "right" }}>Avg Price</th>
+                <th className="text-left">Date</th>
+                <th className="text-left">Commodity ID</th>
+                <th className="text-left">Region ID</th>
+                <th className="text-right">Avg Price</th>
               </tr>
             </thead>
             <tbody>
@@ -46,11 +49,12 @@ export default async function AnalyticsPage() {
                   <td>{row.date}</td>
                   <td>{row.commodity_id}</td>
                   <td>{row.region_id}</td>
-                  <td style={{ textAlign: "right" }}>{formatPeso(Number(row.avg_price))}</td>
+                  <td className="text-right">{formatPeso(Number(row.avg_price))}</td>
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
         )}
       </div>
     </section>

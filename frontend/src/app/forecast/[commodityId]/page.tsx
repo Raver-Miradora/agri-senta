@@ -15,35 +15,39 @@ export default async function ForecastCommodityPage({ params }: ForecastCommodit
   }));
 
   return (
-    <section>
-      <h1>Forecast Detail: {params.commodityId}</h1>
-      <p>7-day prediction with confidence band.</p>
-      <div className="card" style={{ marginTop: "1rem" }}>
+    <section className="page">
+      <div className="page-header">
+        <h1>Forecast Detail: {params.commodityId}</h1>
+        <p className="subtitle">7-day prediction with confidence band.</p>
+      </div>
+      <div className="card">
         <ForecastBandChart data={chartData} xKey="day" />
       </div>
-      <div className="card" style={{ marginTop: "1rem" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <div className="card">
+        <div className="table-wrap">
+          <table className="data-table">
           <thead>
             <tr>
-              <th style={{ textAlign: "left" }}>Date</th>
-              <th style={{ textAlign: "right" }}>Predicted</th>
-              <th style={{ textAlign: "right" }}>Lower</th>
-              <th style={{ textAlign: "right" }}>Upper</th>
-              <th style={{ textAlign: "left" }}>Model</th>
+              <th className="text-left">Date</th>
+              <th className="text-right">Predicted</th>
+              <th className="text-right">Lower</th>
+              <th className="text-right">Upper</th>
+              <th className="text-left">Model</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
               <tr key={`${row.region_id}-${row.forecast_date}`}>
                 <td>{row.forecast_date}</td>
-                <td style={{ textAlign: "right" }}>{formatPeso(Number(row.predicted_price))}</td>
-                <td style={{ textAlign: "right" }}>{formatPeso(Number(row.confidence_lower ?? row.predicted_price))}</td>
-                <td style={{ textAlign: "right" }}>{formatPeso(Number(row.confidence_upper ?? row.predicted_price))}</td>
+                <td className="text-right">{formatPeso(Number(row.predicted_price))}</td>
+                <td className="text-right">{formatPeso(Number(row.confidence_lower ?? row.predicted_price))}</td>
+                <td className="text-right">{formatPeso(Number(row.confidence_upper ?? row.predicted_price))}</td>
                 <td>{row.model_used}</td>
               </tr>
             ))}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
     </section>
   );

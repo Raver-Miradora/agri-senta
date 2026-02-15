@@ -6,22 +6,25 @@ export default async function ForecastPage() {
   const rows = await fetchFromApiOrDefault<ForecastSummary[]>("/forecast/summary", []);
 
   return (
-    <section>
-      <h1>Forecast</h1>
-      <p>Nearest available forecast entry per commodity-region pair.</p>
-      <div className="card" style={{ marginTop: "1rem" }}>
+    <section className="page">
+      <div className="page-header">
+        <h1>Forecast</h1>
+        <p className="subtitle">Nearest available forecast entry per commodity-region pair.</p>
+      </div>
+      <div className="card">
         {rows.length === 0 ? (
-          <p>No forecast data yet. Ensure backend startup completed forecast generation.</p>
+          <p className="empty">No forecast data yet. Ensure backend startup completed forecast generation.</p>
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <div className="table-wrap">
+            <table className="data-table">
             <thead>
               <tr>
-                <th style={{ textAlign: "left" }}>Commodity</th>
-                <th style={{ textAlign: "left" }}>Region</th>
-                <th style={{ textAlign: "left" }}>Forecast Date</th>
-                <th style={{ textAlign: "right" }}>Predicted Price</th>
-                <th style={{ textAlign: "left" }}>Model</th>
-                <th style={{ textAlign: "left" }}>Detail</th>
+                <th className="text-left">Commodity</th>
+                <th className="text-left">Region</th>
+                <th className="text-left">Forecast Date</th>
+                <th className="text-right">Predicted Price</th>
+                <th className="text-left">Model</th>
+                <th className="text-left">Detail</th>
               </tr>
             </thead>
             <tbody>
@@ -30,15 +33,18 @@ export default async function ForecastPage() {
                   <td>{row.commodity_name}</td>
                   <td>{row.region_code}</td>
                   <td>{row.forecast_date}</td>
-                  <td style={{ textAlign: "right" }}>{formatPeso(Number(row.predicted_price))}</td>
+                  <td className="text-right">{formatPeso(Number(row.predicted_price))}</td>
                   <td>{row.model_used}</td>
                   <td>
-                    <Link href={`/forecast/${row.commodity_id}`}>Open</Link>
+                    <Link className="chip-link" href={`/forecast/${row.commodity_id}`}>
+                      Open
+                    </Link>
                   </td>
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
         )}
       </div>
     </section>

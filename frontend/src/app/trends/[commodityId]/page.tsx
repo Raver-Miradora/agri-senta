@@ -10,29 +10,33 @@ export default async function TrendPage({ params }: TrendPageProps) {
   const chartData = history.map((row) => ({ day: row.date, avg_price: Number(row.avg_price) }));
 
   return (
-    <section>
-      <h1>Price Trends: {params.commodityId}</h1>
-      <p>Historical average prices for this commodity.</p>
-      <div className="card" style={{ marginTop: "1rem" }}>
+    <section className="page">
+      <div className="page-header">
+        <h1>Price Trends: {params.commodityId}</h1>
+        <p className="subtitle">Historical average prices for this commodity.</p>
+      </div>
+      <div className="card">
         <SimpleLineChart data={chartData} xKey="day" yKey="avg_price" />
       </div>
-      <div className="card" style={{ marginTop: "1rem" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <div className="card">
+        <div className="table-wrap">
+          <table className="data-table">
           <thead>
             <tr>
-              <th style={{ textAlign: "left" }}>Date</th>
-              <th style={{ textAlign: "right" }}>Average Price</th>
+              <th className="text-left">Date</th>
+              <th className="text-right">Average Price</th>
             </tr>
           </thead>
           <tbody>
             {history.map((row) => (
               <tr key={row.date}>
                 <td>{row.date}</td>
-                <td style={{ textAlign: "right" }}>{formatPeso(Number(row.avg_price))}</td>
+                <td className="text-right">{formatPeso(Number(row.avg_price))}</td>
               </tr>
             ))}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
     </section>
   );

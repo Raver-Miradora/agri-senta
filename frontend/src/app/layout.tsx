@@ -18,13 +18,28 @@ export default function RootLayout({
       <body>
         <header className="nav">
           <div className="nav-inner">
-            <span className="title">Agri-Senta</span>
-            <Link href="/">Dashboard</Link>
-            <Link href="/prices">Prices</Link>
-            <Link href="/compare">Compare</Link>
-            <Link href="/forecast">Forecast</Link>
-            <Link href="/analytics">Analytics</Link>
-            <Link href="/about">About</Link>
+            <span className="title">
+              <span className="brand-pill">PH</span>
+              Agri-Senta
+            </span>
+            <Link className="nav-link" href="/">
+              Dashboard
+            </Link>
+            <Link className="nav-link" href="/prices">
+              Prices
+            </Link>
+            <Link className="nav-link" href="/compare">
+              Compare
+            </Link>
+            <Link className="nav-link" href="/forecast">
+              Forecast
+            </Link>
+            <Link className="nav-link" href="/analytics">
+              Analytics
+            </Link>
+            <Link className="nav-link" href="/about">
+              About
+            </Link>
           </div>
         </header>
         <main>{children}</main>
