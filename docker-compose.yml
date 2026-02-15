@@ -25,6 +25,7 @@ services:
       DA_SCRAPE_URL: https://www.da.gov.ph/price-monitoring/
       PSA_API_URL: https://openstat.psa.gov.ph/
       SCRAPE_SCHEDULE_CRON: 0 6 * * *
+      FORECAST_SCHEDULE_CRON: 0 0 * * 0
       CORS_ORIGINS: '["http://localhost:3000"]'
     depends_on:
       - postgres

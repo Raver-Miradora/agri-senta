@@ -8,6 +8,7 @@ from app.database import AsyncSessionLocal, engine
 from app.models.base import Base
 from app.routers import api_router
 from app.scraping.scheduler import create_scheduler
+from app.services.forecast_service import regenerate_all_forecasts
 from app.utils.seed_data import seed_reference_data
 
 settings = get_settings()
@@ -22,6 +23,8 @@ async def lifespan(_: FastAPI):
 
     async with AsyncSessionLocal() as session:
         await seed_reference_data(session)
+
+    await regenerate_all_forecasts(horizon_days=7)
 
     scheduler.start()
 

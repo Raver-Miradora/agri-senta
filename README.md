@@ -56,6 +56,15 @@ Agri-Senta is a Smart Palengke Dashboard for tracking and forecasting commodity 
   - `GET /api/v1/analytics/rolling-average/{commodity_id}`
   - `GET /api/v1/analytics/seasonal/{commodity_id}`
 
+## Phase 4 Forecasting Included
+
+- ML training pipeline with Linear Regression + ARIMA fallback in `backend/app/ml/`
+- Forecast generation service stores 7-day predictions in `price_forecasts`
+- Forecast endpoints:
+  - `GET /api/v1/forecast/summary`
+  - `GET /api/v1/forecast/{commodity_id}`
+- Startup warm generation of forecasts and weekly scheduler regeneration job
+
 ## Next Build Steps
 
-- Add forecast training and prediction services
+- Expand frontend forecast visualizations and charts

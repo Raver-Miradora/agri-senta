@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     da_scrape_url: str = "https://www.da.gov.ph/price-monitoring/"
     psa_api_url: str = "https://openstat.psa.gov.ph/"
     scrape_schedule_cron: str = "0 6 * * *"
+    forecast_schedule_cron: str = "0 0 * * 0"
 
     cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:3000"])
 
