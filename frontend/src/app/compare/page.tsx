@@ -1,3 +1,4 @@
+import { GitCompareArrows, BarChart3, MapPin } from "lucide-react";
 import SimpleBarChart from "@/components/charts/SimpleBarChart";
 import { RegionalComparison, fetchFromApiOrDefault, formatPeso } from "@/lib/api";
 
@@ -8,31 +9,59 @@ export default async function ComparePage() {
   return (
     <section className="page">
       <div className="page-header">
-        <h1>Regional Comparison</h1>
-        <p className="subtitle">Average prevailing prices by region (all commodities combined).</p>
+        <div className="page-header-row">
+          <div className="page-icon page-icon-red">
+            <GitCompareArrows size={22} />
+          </div>
+          <div>
+            <h1>Regional Comparison</h1>
+            <p className="subtitle">Average prevailing prices by region (all commodities combined).</p>
+          </div>
+        </div>
       </div>
+
       <div className="card">
-        <SimpleBarChart data={chartData} xKey="region" yKey="avg_price" />
+        <div className="card-header">
+          <div className="card-header-icon page-icon-blue">
+            <BarChart3 size={18} />
+          </div>
+          <h3 className="section-title">Price Distribution by Region</h3>
+        </div>
+        <div className="chart-container">
+          <SimpleBarChart data={chartData} xKey="region" yKey="avg_price" />
+        </div>
       </div>
+
       <div className="card">
+        <div className="card-header">
+          <div className="card-header-icon page-icon-red">
+            <MapPin size={18} />
+          </div>
+          <div>
+            <h3 className="section-title">Regional Breakdown</h3>
+            <p className="section-subtitle">{rows.length} regions compared</p>
+          </div>
+        </div>
         <div className="table-wrap">
           <table className="data-table">
-          <thead>
-            <tr>
-              <th className="text-left">Region</th>
-              <th className="text-left">Code</th>
-              <th className="text-right">Avg Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.region_id}>
-                <td>{row.region_name}</td>
-                <td>{row.region_code}</td>
-                <td className="text-right">{formatPeso(Number(row.avg_price))}</td>
+            <thead>
+              <tr>
+                <th className="text-left">Region</th>
+                <th className="text-left">Code</th>
+                <th className="text-right">Avg Price</th>
               </tr>
-            ))}
-          </tbody>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.region_id}>
+                  <td style={{ fontWeight: 600 }}>{row.region_name}</td>
+                  <td>
+                    <span className="badge badge-red">{row.region_code}</span>
+                  </td>
+                  <td className="text-right font-mono">{formatPeso(Number(row.avg_price))}</td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
       </div>

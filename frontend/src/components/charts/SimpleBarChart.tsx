@@ -18,18 +18,29 @@ export default function SimpleBarChart({
   height = 320,
 }: SimpleBarChartProps) {
   if (data.length === 0) {
-    return <p>No chart data available.</p>;
+    return (
+      <div className="empty">
+        <p>No chart data available.</p>
+      </div>
+    );
   }
 
   return (
     <div style={{ width: "100%", height }}>
       <ResponsiveContainer>
-        <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey={xKey} />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey={yKey} fill={color} />
+        <BarChart data={data} margin={{ top: 8, right: 16, bottom: 4, left: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <XAxis dataKey={xKey} fontSize={12} tick={{ fill: "#6b7280" }} />
+          <YAxis fontSize={12} tick={{ fill: "#6b7280" }} />
+          <Tooltip
+            contentStyle={{
+              borderRadius: "8px",
+              border: "1px solid #e5e7eb",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+              fontSize: "0.85rem",
+            }}
+          />
+          <Bar dataKey={yKey} fill={color} radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

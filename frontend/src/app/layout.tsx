@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import Navbar from "@/components/Navbar";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Agri-Senta",
-  description: "Smart Palengke Dashboard",
+  title: "Agri-Senta — Smart Palengke Dashboard",
+  description:
+    "Track, compare, and forecast commodity prices across Philippine regions.",
 };
 
 export default function RootLayout({
@@ -16,33 +18,30 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <header className="nav">
-          <div className="nav-inner">
-            <span className="title">
-              <span className="brand-pill">PH</span>
-              Agri-Senta
-            </span>
-            <Link className="nav-link" href="/">
-              Dashboard
-            </Link>
-            <Link className="nav-link" href="/prices">
-              Prices
-            </Link>
-            <Link className="nav-link" href="/compare">
-              Compare
-            </Link>
-            <Link className="nav-link" href="/forecast">
-              Forecast
-            </Link>
-            <Link className="nav-link" href="/analytics">
-              Analytics
-            </Link>
-            <Link className="nav-link" href="/about">
-              About
-            </Link>
-          </div>
-        </header>
+        <Navbar />
         <main>{children}</main>
+        <footer className="footer">
+          <div className="footer-inner">
+            <span>&copy; {new Date().getFullYear()} Agri-Senta &mdash; Smart Palengke Dashboard</span>
+            <div className="footer-links">
+              <Link href="/about">About</Link>
+              <a
+                href="https://www.da.gov.ph/price-monitoring/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                DA Price Watch
+              </a>
+              <a
+                href="https://openstat.psa.gov.ph/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                PSA OpenSTAT
+              </a>
+            </div>
+          </div>
+        </footer>
       </body>
     </html>
   );
