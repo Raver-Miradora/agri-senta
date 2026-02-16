@@ -1,89 +1,128 @@
 # Agri-Senta
 
-Agri-Senta is a Smart Palengke Dashboard for tracking and forecasting commodity prices across Philippine regions.
+**Smart Palengke Dashboard** — Track, compare, and forecast commodity prices across Philippine regions.
 
 ## Stack
 
-- Frontend: Next.js 14 + TypeScript
-- Backend: FastAPI + SQLAlchemy (async)
-- Database: PostgreSQL 16
-- Orchestration: Docker Compose
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Next.js 14 (App Router) + TypeScript + Recharts |
+| Backend | FastAPI + SQLAlchemy 2 (async) + Pydantic |
+| Database | PostgreSQL 16 |
+| ML Engine | scikit-learn (LinearRegression) + statsmodels (ARIMA) |
+| Scheduler | APScheduler (daily scrape + weekly forecast) |
+| Infrastructure | Docker Compose with healthchecks |
 
 ## Quick Start (Docker)
 
-1. From project root, run:
+```bash
+docker compose up --build
+```
 
-   ```bash
-   docker compose up --build
-   ```
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:3000 |
+| Backend API docs | http://localhost:8000/docs |
+| Health check | http://localhost:8000/api/v1/health |
 
-2. Open apps:
-   - Frontend: http://localhost:3000
-   - Backend docs: http://localhost:8000/docs
-   - Health: http://localhost:8000/api/v1/health
+## Quick Start (Local)
 
-## Implemented Baseline
+```bash
+# Backend
+cd backend
+python -m venv .venv && .venv/Scripts/activate  # or source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env  # update DATABASE_URL to your local PG
+uvicorn app.main:app --reload
 
-- Backend startup auto-creates tables for `regions`, `commodities`, `markets`, `daily_prices`, `price_forecasts`, and `scrape_logs`
-- Backend seeds initial regions, commodities, and markets
-- API endpoints:
-  - `GET /api/v1/health`
-  - `GET /api/v1/commodities`
-  - `GET /api/v1/regions`
-  - `POST /api/v1/admin/scrape/trigger?source=DA|PSA`
-  - `GET /api/v1/admin/scrape/logs`
-- Frontend route shell:
-  - `/`, `/prices`, `/compare`, `/forecast`, `/forecast/[commodityId]`, `/trends/[commodityId]`, `/analytics`, `/about`
+# Frontend
+cd frontend
+npm install
+npm run dev
+```
 
-## Phase 2 Scaffolding Included
+## API Endpoints
 
-- DA/PSA scraper modules and data cleaner
-- Upsert loader for `daily_prices`
-- Scrape log writer and basic ingestion service orchestration
-- APScheduler wiring for daily scrape schedule (Asia/Manila)
+### Core
+- `GET /api/v1/health`
+- `GET /api/v1/commodities`
+- `GET /api/v1/regions`
 
-## Phase 3 API Included
+### Prices
+- `GET /api/v1/prices/daily?commodity_id=&region_id=&from=&to=&limit=200`
+- `GET /api/v1/prices/latest`
+- `GET /api/v1/prices/history/{commodity_id}`
 
-- Price endpoints:
-  - `GET /api/v1/prices/daily`
-  - `GET /api/v1/prices/latest`
-  - `GET /api/v1/prices/history/{commodity_id}`
-- Analytics endpoints:
-  - `GET /api/v1/analytics/weekly-variance`
-  - `GET /api/v1/analytics/regional-comparison`
-  - `GET /api/v1/analytics/price-spikes`
-  - `GET /api/v1/analytics/cheapest-region/{commodity_id}`
-  - `GET /api/v1/analytics/rolling-average/{commodity_id}`
-  - `GET /api/v1/analytics/seasonal/{commodity_id}`
+### Analytics
+- `GET /api/v1/analytics/weekly-variance`
+- `GET /api/v1/analytics/regional-comparison`
+- `GET /api/v1/analytics/price-spikes`
+- `GET /api/v1/analytics/cheapest-region/{commodity_id}`
+- `GET /api/v1/analytics/rolling-average/{commodity_id}`
+- `GET /api/v1/analytics/seasonal/{commodity_id}`
 
-## Phase 4 Forecasting Included
+### Forecasting
+- `GET /api/v1/forecast/summary`
+- `GET /api/v1/forecast/{commodity_id}`
 
-- ML training pipeline with Linear Regression + ARIMA fallback in `backend/app/ml/`
-- Forecast generation service stores 7-day predictions in `price_forecasts`
-- Forecast endpoints:
-  - `GET /api/v1/forecast/summary`
-  - `GET /api/v1/forecast/{commodity_id}`
-- Startup warm generation of forecasts and weekly scheduler regeneration job
+### Admin
+- `POST /api/v1/admin/scrape/trigger?source=DA|PSA`
+- `GET /api/v1/admin/scrape/logs`
 
-## Phase 5 Frontend Views Included
+## Frontend Pages
 
-- Dashboard home now shows live summary cards and recent price rows
-- Price Explorer now renders a live latest-prices table
-- Regional Comparison now includes bar chart + table from analytics API
-- Analytics page now includes weekly variance line chart and spike table
-- Forecast pages now render summary table and per-commodity confidence-band chart
-- Trends page now renders historical line chart and table by commodity
+| Route | Description |
+|-------|-------------|
+| `/` | Dashboard with KPI cards and latest price table |
+| `/prices` | Price explorer — sortable latest prices |
+| `/compare` | Regional price comparison with bar chart |
+| `/analytics` | Weekly variance chart and spike detection |
+| `/forecast` | Forecast summary table |
+| `/forecast/[id]` | 7-day forecast detail with confidence band chart |
+| `/trends/[id]` | Historical price trend line chart |
+| `/about` | About page with project info |
 
-## Phase 6 Reliability & QA Included
+## ML Engine
 
-- Frontend global `loading.tsx`, `error.tsx`, and `not-found.tsx` routes for resilient UX
-- Docker Compose healthchecks for `postgres`, `backend`, and `frontend`
-- Service startup dependency ordering based on health state (`depends_on.condition: service_healthy`)
-- Backend smoke/unit tests:
-  - `tests/test_health_router.py`
-  - `tests/test_ml_forecast.py`
-- Pytest config added in `backend/pytest.ini`
+Models are evaluated on an 80/20 time-split, and the winner is retrained on the **full dataset** for production forecasting:
 
-## Next Build Steps
+- **Linear Regression** — index-based trend model
+- **ARIMA(1,1,1)** — time-series model with differencing
 
-- Add advanced filters (commodity/region/date) and richer dashboard UI components
+Forecasts are generated at startup and regenerated weekly via scheduler.
+
+## Testing
+
+```bash
+cd backend
+pytest -v
+```
+
+## Project Structure
+
+```
+├── backend/
+│   ├── app/
+│   │   ├── main.py          # FastAPI entry + lifespan
+│   │   ├── config.py         # Pydantic settings
+│   │   ├── database.py       # Async SQLAlchemy
+│   │   ├── models/           # ORM models
+│   │   ├── schemas/          # Pydantic schemas
+│   │   ├── routers/          # API route handlers
+│   │   ├── services/         # Business logic
+│   │   ├── ml/               # ML training & prediction
+│   │   ├── scraping/         # Scrapers, cleaner, loader, scheduler
+│   │   └── utils/            # Seed data
+│   ├── tests/
+│   ├── Dockerfile
+│   └── requirements.txt
+├── frontend/
+│   ├── src/
+│   │   ├── app/              # Next.js App Router pages
+│   │   ├── components/       # Chart components (Recharts)
+│   │   └── lib/              # API client + types
+│   ├── Dockerfile            # Multi-stage production build
+│   └── package.json
+├── docker-compose.yml
+└── BLUEPRINT.md
+```

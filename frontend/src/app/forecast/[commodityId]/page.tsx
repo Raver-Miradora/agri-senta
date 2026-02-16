@@ -2,11 +2,12 @@ import ForecastBandChart from "@/components/charts/ForecastBandChart";
 import { ForecastPoint, fetchFromApiOrDefault, formatPeso } from "@/lib/api";
 
 type ForecastCommodityPageProps = {
-  params: { commodityId: string };
+  params: Promise<{ commodityId: string }>;
 };
 
 export default async function ForecastCommodityPage({ params }: ForecastCommodityPageProps) {
-  const rows = await fetchFromApiOrDefault<ForecastPoint[]>(`/forecast/${params.commodityId}`, []);
+  const { commodityId } = await params;
+  const rows = await fetchFromApiOrDefault<ForecastPoint[]>(`/forecast/${commodityId}`, []);
   const chartData = rows.map((row) => ({
     day: row.forecast_date,
     predicted_price: Number(row.predicted_price),
@@ -17,7 +18,7 @@ export default async function ForecastCommodityPage({ params }: ForecastCommodit
   return (
     <section className="page">
       <div className="page-header">
-        <h1>Forecast Detail: {params.commodityId}</h1>
+        <h1>Forecast Detail: {commodityId}</h1>
         <p className="subtitle">7-day prediction with confidence band.</p>
       </div>
       <div className="card">

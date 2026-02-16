@@ -8,12 +8,16 @@ export default function Error({
   reset: () => void;
 }) {
   return (
-    <section>
-      <h1>Something went wrong</h1>
-      <p>{error.message || "Unexpected error while loading this page."}</p>
-      <button type="button" onClick={reset} style={{ marginTop: "0.75rem" }}>
-        Try again
-      </button>
+    <section className="page">
+      <div className="page-header">
+        <h1>Something went wrong</h1>
+        <p className="subtitle">{error.message || "Unexpected error while loading this page."}</p>
+      </div>
+      <div className="card" style={{ maxWidth: 400 }}>
+        <button className="btn" type="button" onClick={reset}>
+          Try again
+        </button>
+      </div>
     </section>
   );
 }

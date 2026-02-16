@@ -14,3 +14,5 @@ scikit-learn==1.6.1
 statsmodels==0.14.4
 apscheduler==3.11.0
 pytest==8.3.4
+pytest-asyncio==0.25.3
+aiofiles==24.1.0

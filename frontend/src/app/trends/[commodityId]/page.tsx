@@ -2,17 +2,18 @@ import SimpleLineChart from "@/components/charts/SimpleLineChart";
 import { PriceHistory, fetchFromApiOrDefault, formatPeso } from "@/lib/api";
 
 type TrendPageProps = {
-  params: { commodityId: string };
+  params: Promise<{ commodityId: string }>;
 };
 
 export default async function TrendPage({ params }: TrendPageProps) {
-  const history = await fetchFromApiOrDefault<PriceHistory[]>(`/prices/history/${params.commodityId}`, []);
+  const { commodityId } = await params;
+  const history = await fetchFromApiOrDefault<PriceHistory[]>(`/prices/history/${commodityId}`, []);
   const chartData = history.map((row) => ({ day: row.date, avg_price: Number(row.avg_price) }));
 
   return (
     <section className="page">
       <div className="page-header">
-        <h1>Price Trends: {params.commodityId}</h1>
+        <h1>Price Trends: {commodityId}</h1>
         <p className="subtitle">Historical average prices for this commodity.</p>
       </div>
       <div className="card">

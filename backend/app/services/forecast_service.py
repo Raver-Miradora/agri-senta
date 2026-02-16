@@ -1,3 +1,4 @@
+import logging
 from collections import defaultdict
 from datetime import UTC, date, datetime
 from decimal import Decimal
@@ -9,6 +10,8 @@ from app.database import AsyncSessionLocal
 from app.ml.predictor import generate_forecast_points
 from app.ml.trainer import train_best_model
 from app.models import Commodity, DailyPrice, PriceForecast, Region
+
+logger = logging.getLogger("agrisenta.forecast")
 
 
 async def _build_history_by_pair(session: AsyncSession) -> dict[tuple[int, int], list[tuple[date, float]]]:
@@ -30,6 +33,7 @@ async def regenerate_all_forecasts(horizon_days: int = 7) -> dict[str, int]:
 
     async with AsyncSessionLocal() as session:
         history_map = await _build_history_by_pair(session)
+        logger.info("Found %d commodity-region pairs for forecasting", len(history_map))
 
         for (commodity_id, region_id), series in history_map.items():
             prices = [price for _, price in series]
