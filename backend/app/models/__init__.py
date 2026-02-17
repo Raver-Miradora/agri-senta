@@ -4,5 +4,6 @@ from app.models.market import Market
 from app.models.price_forecast import PriceForecast
 from app.models.region import Region
 from app.models.scrape_log import ScrapeLog
+from app.models.user import User
 
-__all__ = ["Commodity", "Region", "Market", "DailyPrice", "PriceForecast", "ScrapeLog"]
+__all__ = ["Commodity", "Region", "Market", "DailyPrice", "PriceForecast", "ScrapeLog", "User"]

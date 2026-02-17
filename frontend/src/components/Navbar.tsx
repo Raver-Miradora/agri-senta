@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Tags,
@@ -13,7 +13,11 @@ import {
   Menu,
   X,
   Wheat,
+  Shield,
+  LogIn,
+  LogOut,
 } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
 
 const NAV_ITEMS = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -26,7 +30,15 @@ const NAV_ITEMS = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, loading, logout } = useAuth();
   const [open, setOpen] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    setOpen(false);
+    router.push("/");
+  };
 
   return (
     <header className="nav">
@@ -76,6 +88,59 @@ export default function Navbar() {
               </Link>
             );
           })}
+
+          {/* Admin link – only for admin users */}
+          {user?.is_admin && (
+            <Link
+              href="/admin"
+              className="nav-link"
+              onClick={() => setOpen(false)}
+              style={
+                pathname.startsWith("/admin")
+                  ? {
+                      background: "var(--agri-blue-light)",
+                      color: "var(--agri-blue)",
+                      fontWeight: 600,
+                    }
+                  : undefined
+              }
+            >
+              <Shield size={16} />
+              Admin
+            </Link>
+          )}
+
+          {/* Auth button */}
+          {!loading && (
+            user ? (
+              <button
+                className="nav-link"
+                onClick={handleLogout}
+                style={{ cursor: "pointer", border: "none", background: "none", font: "inherit" }}
+              >
+                <LogOut size={16} />
+                Logout
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                className="nav-link"
+                onClick={() => setOpen(false)}
+                style={
+                  pathname === "/login"
+                    ? {
+                        background: "var(--agri-blue-light)",
+                        color: "var(--agri-blue)",
+                        fontWeight: 600,
+                      }
+                    : undefined
+                }
+              >
+                <LogIn size={16} />
+                Login
+              </Link>
+            )
+          )}
         </nav>
       </div>
     </header>

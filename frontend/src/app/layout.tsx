@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import Navbar from "@/components/Navbar";
+import { AuthProvider } from "@/lib/AuthContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,9 +19,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Navbar />
-        <main>{children}</main>
-        <footer className="footer">
+        <AuthProvider>
+          <Navbar />
+          <main>{children}</main>
+          <footer className="footer">
           <div className="footer-inner">
             <span>&copy; {new Date().getFullYear()} Agri-Senta &mdash; Smart Palengke Dashboard</span>
             <div className="footer-links">
@@ -42,6 +44,7 @@ export default function RootLayout({
             </div>
           </div>
         </footer>
+        </AuthProvider>
       </body>
     </html>
   );

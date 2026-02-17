@@ -9,6 +9,7 @@ from app.database import AsyncSessionLocal, engine
 from app.models.base import Base
 from app.routers import api_router
 from app.scraping.scheduler import create_scheduler
+from app.services.auth_service import create_user, get_user_by_username
 from app.services.forecast_service import regenerate_all_forecasts
 from app.utils.seed_data import seed_reference_data
 
@@ -36,6 +37,20 @@ async def lifespan(_: FastAPI):
     logger.info("Seeding reference data …")
     async with AsyncSessionLocal() as session:
         await seed_reference_data(session)
+
+    logger.info("Seeding default admin user …")
+    async with AsyncSessionLocal() as session:
+        existing = await get_user_by_username(session, settings.default_admin_username)
+        if existing is None:
+            await create_user(
+                session,
+                username=settings.default_admin_username,
+                password=settings.default_admin_password,
+                is_admin=True,
+            )
+            logger.info("Default admin user created: %s", settings.default_admin_username)
+        else:
+            logger.info("Admin user already exists, skipping")
 
     logger.info("Generating initial forecasts …")
     result = await regenerate_all_forecasts(horizon_days=7)

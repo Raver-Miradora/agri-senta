@@ -16,6 +16,8 @@ from sqlalchemy.pool import StaticPool
 from app.database import get_db_session
 from app.models import Commodity, DailyPrice, Market, PriceForecast, Region
 from app.models.base import Base
+from app.models.user import User
+from app.services.auth_service import create_access_token, hash_password
 
 # ---------------------------------------------------------------------------
 # Engine & session factory – in-memory SQLite with StaticPool
@@ -151,6 +153,65 @@ async def client(seeded_session: AsyncSession):
 
     async def _override_db() -> AsyncGenerator[AsyncSession, None]:
         yield seeded_session
+
+    app.dependency_overrides[get_db_session] = _override_db
+
+    transport = ASGITransport(app=app)  # type: ignore[arg-type]
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        yield ac
+
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+async def admin_user(db_session: AsyncSession) -> User:
+    """Create an admin user in the test database."""
+    user = User(
+        username="testadmin",
+        hashed_password=hash_password("adminpass123"),
+        is_admin=True,
+        is_active=True,
+    )
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+    return user
+
+
+@pytest.fixture()
+async def normal_user(db_session: AsyncSession) -> User:
+    """Create a non-admin user in the test database."""
+    user = User(
+        username="testuser",
+        hashed_password=hash_password("userpass123"),
+        is_admin=False,
+        is_active=True,
+    )
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+    return user
+
+
+@pytest.fixture()
+def admin_token(admin_user: User) -> str:
+    """JWT token for the admin user."""
+    return create_access_token(data={"sub": admin_user.username})
+
+
+@pytest.fixture()
+def user_token(normal_user: User) -> str:
+    """JWT token for a non-admin user."""
+    return create_access_token(data={"sub": normal_user.username})
+
+
+@pytest.fixture()
+async def auth_client(db_session: AsyncSession):
+    """AsyncClient with DB override but NO seeded data (for auth tests)."""
+    from app.main import app
+
+    async def _override_db() -> AsyncGenerator[AsyncSession, None]:
+        yield db_session
 
     app.dependency_overrides[get_db_session] = _override_db
 

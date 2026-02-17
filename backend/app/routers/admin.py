@@ -3,11 +3,12 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db_session
+from app.dependencies.auth import require_admin
 from app.models import ScrapeLog
 from app.schemas.admin import ScrapeLogResponse, ScrapeTriggerResponse
 from app.services.pipeline_service import run_ingestion_pipeline
 
-router = APIRouter(prefix="/admin/scrape", tags=["Admin"])
+router = APIRouter(prefix="/admin/scrape", tags=["Admin"], dependencies=[Depends(require_admin)])
 
 
 @router.post("/trigger", response_model=ScrapeTriggerResponse)

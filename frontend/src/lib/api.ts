@@ -27,6 +27,67 @@ export async function fetchFromApiOrDefault<T>(path: string, fallback: T): Promi
   }
 }
 
+/* ── Auth helpers (client-side only) ── */
+
+export function getStoredToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("agrisenta_token");
+}
+
+export function setStoredToken(token: string): void {
+  localStorage.setItem("agrisenta_token", token);
+}
+
+export function clearStoredToken(): void {
+  localStorage.removeItem("agrisenta_token");
+}
+
+export async function loginApi(username: string, password: string): Promise<{ access_token: string; token_type: string }> {
+  const body = new URLSearchParams({ username, password });
+  const res = await fetch(`${resolveApiBaseUrl()}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+  });
+  if (!res.ok) {
+    const detail = await res.json().catch(() => null);
+    throw new Error(detail?.detail ?? `Login failed: ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function fetchMe(): Promise<AuthUser | null> {
+  const token = getStoredToken();
+  if (!token) return null;
+  const res = await fetch(`${resolveApiBaseUrl()}/auth/me`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) return null;
+  return res.json();
+}
+
+export async function fetchWithAuth<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const token = getStoredToken();
+  const headers: HeadersInit = { ...options.headers as Record<string, string> };
+  if (token) {
+    (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+  }
+  const res = await fetch(`${resolveApiBaseUrl()}${path}`, { ...options, headers });
+  if (!res.ok) {
+    const detail = await res.json().catch(() => null);
+    throw new Error(detail?.detail ?? `Request failed: ${res.status}`);
+  }
+  return res.json();
+}
+
+export type AuthUser = {
+  id: number;
+  username: string;
+  email: string | null;
+  is_active: boolean;
+  is_admin: boolean;
+};
+
 export type Commodity = {
   id: number;
   name: string;

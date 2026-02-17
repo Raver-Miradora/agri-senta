@@ -37,6 +37,7 @@ jobs:
     env:
       DATABASE_URL: postgresql+asyncpg://agrisenta:password@localhost:5432/agrisenta_test
       ENVIRONMENT: testing
+      SECRET_KEY: ci-test-secret-key
 
     steps:
       - uses: actions/checkout@v4

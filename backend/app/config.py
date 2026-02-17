@@ -19,6 +19,12 @@ class Settings(BaseSettings):
 
     cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:3000"])
 
+    # Auth
+    secret_key: str = "dev-secret-change-in-production"
+    access_token_expire_minutes: int = 60
+    default_admin_username: str = "admin"
+    default_admin_password: str = "admin123"
+
 
 @lru_cache
 def get_settings() -> Settings:
