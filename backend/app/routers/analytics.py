@@ -75,6 +75,8 @@ async def rolling_average(
 
 
 @router.get("/seasonal/{commodity_id}", response_model=list[SeasonalPatternResponse])
-async def seasonal_pattern(commodity_id: int, db: AsyncSession = Depends(get_db_session)) -> list[SeasonalPatternResponse]:
+async def seasonal_pattern(
+    commodity_id: int, db: AsyncSession = Depends(get_db_session)
+) -> list[SeasonalPatternResponse]:
     rows = await get_seasonal_pattern(db, commodity_id=commodity_id)
     return [SeasonalPatternResponse(**row) for row in rows]

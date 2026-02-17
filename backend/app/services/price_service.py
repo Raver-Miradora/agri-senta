@@ -69,13 +69,10 @@ async def get_price_history(
     from_date: date | None,
     to_date: date | None,
 ) -> list[dict]:
-    statement = (
-        select(
-            DailyPrice.date,
-            func.avg(DailyPrice.price_prevailing).label("avg_price"),
-        )
-        .where(DailyPrice.commodity_id == commodity_id)
-    )
+    statement = select(
+        DailyPrice.date,
+        func.avg(DailyPrice.price_prevailing).label("avg_price"),
+    ).where(DailyPrice.commodity_id == commodity_id)
 
     if region_id is not None:
         statement = statement.where(DailyPrice.region_id == region_id)

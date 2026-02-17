@@ -50,15 +50,12 @@ async def get_regional_comparison(
     from_date: date | None,
     to_date: date | None,
 ) -> list[dict]:
-    statement = (
-        select(
-            Region.id.label("region_id"),
-            Region.name.label("region_name"),
-            Region.code.label("region_code"),
-            func.avg(DailyPrice.price_prevailing).label("avg_price"),
-        )
-        .join(Region, Region.id == DailyPrice.region_id)
-    )
+    statement = select(
+        Region.id.label("region_id"),
+        Region.name.label("region_name"),
+        Region.code.label("region_code"),
+        func.avg(DailyPrice.price_prevailing).label("avg_price"),
+    ).join(Region, Region.id == DailyPrice.region_id)
 
     if commodity_id is not None:
         statement = statement.where(DailyPrice.commodity_id == commodity_id)
@@ -67,7 +64,9 @@ async def get_regional_comparison(
     if to_date is not None:
         statement = statement.where(DailyPrice.date <= to_date)
 
-    statement = statement.group_by(Region.id, Region.name, Region.code).order_by(func.avg(DailyPrice.price_prevailing).asc())
+    statement = statement.group_by(Region.id, Region.name, Region.code).order_by(
+        func.avg(DailyPrice.price_prevailing).asc()
+    )
 
     result = await session.execute(statement)
     return [dict(row._mapping) for row in result]
@@ -135,9 +134,7 @@ async def get_price_spikes(
 
 async def get_cheapest_region(session: AsyncSession, *, commodity_id: int) -> dict | None:
     latest_date_subquery = (
-        select(func.max(DailyPrice.date))
-        .where(DailyPrice.commodity_id == commodity_id)
-        .scalar_subquery()
+        select(func.max(DailyPrice.date)).where(DailyPrice.commodity_id == commodity_id).scalar_subquery()
     )
 
     statement = (

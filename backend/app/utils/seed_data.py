@@ -99,7 +99,12 @@ SEED_MARKETS = [
     {"name": "Tuguegarao Center Market", "region_code": "R02", "type": "wet", "address": "Tuguegarao, Cagayan"},
     {"name": "Pampanga Public Market", "region_code": "R03", "type": "wet", "address": "San Fernando, Pampanga"},
     {"name": "Lucena Grand Central Market", "region_code": "R04A", "type": "wet", "address": "Lucena City, Quezon"},
-    {"name": "Puerto Princesa Main Market", "region_code": "R04B", "type": "wet", "address": "Puerto Princesa, Palawan"},
+    {
+        "name": "Puerto Princesa Main Market",
+        "region_code": "R04B",
+        "type": "wet",
+        "address": "Puerto Princesa, Palawan",
+    },
     {"name": "Naga City Public Market", "region_code": "R05", "type": "wet", "address": "Naga City, Camarines Sur"},
     {"name": "Iloilo Terminal Market", "region_code": "R06", "type": "wet", "address": "Iloilo City"},
     {"name": "Carbon Public Market", "region_code": "R07", "type": "wet", "address": "Cebu City"},
@@ -108,7 +113,12 @@ SEED_MARKETS = [
     {"name": "Cogon Market", "region_code": "R10", "type": "wet", "address": "Cagayan de Oro, Misamis Oriental"},
     {"name": "Bankerohan Public Market", "region_code": "R11", "type": "wet", "address": "Davao City"},
     {"name": "General Santos Public Market", "region_code": "R12", "type": "wet", "address": "General Santos City"},
-    {"name": "Butuan City Central Market", "region_code": "R13", "type": "wet", "address": "Butuan City, Agusan del Norte"},
+    {
+        "name": "Butuan City Central Market",
+        "region_code": "R13",
+        "type": "wet",
+        "address": "Butuan City, Agusan del Norte",
+    },
     {"name": "Cotabato City Public Market", "region_code": "BARMM", "type": "wet", "address": "Cotabato City"},
 ]
 

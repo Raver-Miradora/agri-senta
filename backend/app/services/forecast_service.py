@@ -15,10 +15,9 @@ logger = logging.getLogger("agrisenta.forecast")
 
 
 async def _build_history_by_pair(session: AsyncSession) -> dict[tuple[int, int], list[tuple[date, float]]]:
-    statement = (
-        select(DailyPrice.commodity_id, DailyPrice.region_id, DailyPrice.date, DailyPrice.price_prevailing)
-        .order_by(DailyPrice.commodity_id.asc(), DailyPrice.region_id.asc(), DailyPrice.date.asc())
-    )
+    statement = select(
+        DailyPrice.commodity_id, DailyPrice.region_id, DailyPrice.date, DailyPrice.price_prevailing
+    ).order_by(DailyPrice.commodity_id.asc(), DailyPrice.region_id.asc(), DailyPrice.date.asc())
     result = await session.execute(statement)
 
     grouped: dict[tuple[int, int], list[tuple[date, float]]] = defaultdict(list)
@@ -79,7 +78,9 @@ async def regenerate_all_forecasts(horizon_days: int = 7) -> dict[str, int]:
     return {"status": "success", "rows_generated": generated_rows}
 
 
-async def get_forecast_by_commodity(session: AsyncSession, *, commodity_id: int, region_id: int | None) -> list[PriceForecast]:
+async def get_forecast_by_commodity(
+    session: AsyncSession, *, commodity_id: int, region_id: int | None
+) -> list[PriceForecast]:
     statement = select(PriceForecast).where(PriceForecast.commodity_id == commodity_id)
 
     if region_id is not None:
@@ -94,7 +95,11 @@ async def get_forecast_summary(session: AsyncSession) -> list[dict]:
     today = datetime.now(UTC).date()
 
     earliest_forecast_subquery = (
-        select(PriceForecast.commodity_id, PriceForecast.region_id, func.min(PriceForecast.forecast_date).label("first_date"))
+        select(
+            PriceForecast.commodity_id,
+            PriceForecast.region_id,
+            func.min(PriceForecast.forecast_date).label("first_date"),
+        )
         .where(PriceForecast.forecast_date >= today)
         .group_by(PriceForecast.commodity_id, PriceForecast.region_id)
         .subquery()

@@ -20,7 +20,9 @@ class DailyPrice(TimestampMixin, Base):
     )
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    commodity_id: Mapped[int] = mapped_column(ForeignKey("commodities.id", ondelete="CASCADE"), nullable=False, index=True)
+    commodity_id: Mapped[int] = mapped_column(
+        ForeignKey("commodities.id", ondelete="CASCADE"), nullable=False, index=True
+    )
     market_id: Mapped[int] = mapped_column(ForeignKey("markets.id", ondelete="CASCADE"), nullable=False, index=True)
     region_id: Mapped[int] = mapped_column(ForeignKey("regions.id", ondelete="CASCADE"), nullable=False, index=True)
 
