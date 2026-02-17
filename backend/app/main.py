@@ -28,6 +28,9 @@ async def lifespan(_: FastAPI):
 
     logger.info("Creating database tables …")
     async with engine.begin() as connection:
+        # drop_all + create_all ensures schema stays in sync during development.
+        # For production, use Alembic migrations instead.
+        await connection.run_sync(Base.metadata.drop_all)
         await connection.run_sync(Base.metadata.create_all)
 
     logger.info("Seeding reference data …")
