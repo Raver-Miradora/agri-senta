@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Tags, Calendar, Receipt } from "lucide-react";
 import { LatestPrice, fetchFromApiOrDefault, formatPeso } from "@/lib/api";
 

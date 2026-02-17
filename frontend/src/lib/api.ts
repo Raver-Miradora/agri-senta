@@ -9,7 +9,7 @@ function resolveApiBaseUrl(): string {
 
 export async function fetchFromApi<T>(path: string): Promise<T> {
   const response = await fetch(`${resolveApiBaseUrl()}${path}`, {
-    next: { revalidate: 3600 },
+    cache: "no-store",
   });
 
   if (!response.ok) {

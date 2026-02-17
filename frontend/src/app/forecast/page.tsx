@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import { TrendingUp, Brain, ArrowRight, Calendar } from "lucide-react";
 

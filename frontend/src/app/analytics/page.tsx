@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { BarChart3, TrendingUp, AlertTriangle, Activity } from "lucide-react";
 import SimpleLineChart from "@/components/charts/SimpleLineChart";
 import { PriceSpike, WeeklyVariance, fetchFromApiOrDefault, formatPeso } from "@/lib/api";

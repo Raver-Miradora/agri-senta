@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { GitCompareArrows, BarChart3, MapPin } from "lucide-react";
 import SimpleBarChart from "@/components/charts/SimpleBarChart";
 import { RegionalComparison, fetchFromApiOrDefault, formatPeso } from "@/lib/api";
