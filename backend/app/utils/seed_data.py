@@ -1,4 +1,4 @@
-"""Seed data for Agri-Senta: all 17 Philippine regions, 25 commodities, 17 markets.
+"""Seed data for Agri-Senta: all 17 Philippine regions, 35 commodities, 17 markets.
 
 Generates 90 days of realistic daily price history for every
 commodity-region pair with category-specific volatility, seasonal
@@ -39,7 +39,7 @@ SEED_REGIONS = [
 ]
 
 # ---------------------------------------------------------------------------
-# 25 key Philippine commodities across 7 categories
+# 35 key Philippine commodities across 8 categories
 # Prices sourced from typical DA / Bantay Presyo ranges
 # ---------------------------------------------------------------------------
 SEED_COMMODITIES = [
@@ -47,10 +47,12 @@ SEED_COMMODITIES = [
     {"name": "Well-Milled Rice", "category": "Rice", "unit": "kg", "image_url": None},
     {"name": "Regular-Milled Rice", "category": "Rice", "unit": "kg", "image_url": None},
     {"name": "Premium Rice", "category": "Rice", "unit": "kg", "image_url": None},
+    {"name": "Special Rice", "category": "Rice", "unit": "kg", "image_url": None},
     # Vegetables
     {"name": "Red Onion", "category": "Vegetables", "unit": "kg", "image_url": None},
     {"name": "White Onion", "category": "Vegetables", "unit": "kg", "image_url": None},
     {"name": "Garlic (Imported)", "category": "Vegetables", "unit": "kg", "image_url": None},
+    {"name": "Garlic (Local)", "category": "Vegetables", "unit": "kg", "image_url": None},
     {"name": "Tomato", "category": "Vegetables", "unit": "kg", "image_url": None},
     {"name": "Eggplant", "category": "Vegetables", "unit": "kg", "image_url": None},
     {"name": "Ampalaya", "category": "Vegetables", "unit": "kg", "image_url": None},
@@ -58,22 +60,33 @@ SEED_COMMODITIES = [
     {"name": "Cabbage", "category": "Vegetables", "unit": "kg", "image_url": None},
     {"name": "Kangkong", "category": "Vegetables", "unit": "kg", "image_url": None},
     {"name": "Sitaw", "category": "Vegetables", "unit": "kg", "image_url": None},
+    {"name": "Chili (Labuyo)", "category": "Vegetables", "unit": "kg", "image_url": None},
+    {"name": "Ginger", "category": "Vegetables", "unit": "kg", "image_url": None},
+    {"name": "Potato", "category": "Vegetables", "unit": "kg", "image_url": None},
+    {"name": "Carrots", "category": "Vegetables", "unit": "kg", "image_url": None},
     # Meat
     {"name": "Pork Liempo", "category": "Meat", "unit": "kg", "image_url": None},
     {"name": "Pork Kasim", "category": "Meat", "unit": "kg", "image_url": None},
     {"name": "Whole Chicken", "category": "Meat", "unit": "kg", "image_url": None},
     {"name": "Chicken Breast", "category": "Meat", "unit": "kg", "image_url": None},
     {"name": "Beef Brisket", "category": "Meat", "unit": "kg", "image_url": None},
-    # Fish
-    {"name": "Bangus", "category": "Fish", "unit": "kg", "image_url": None},
-    {"name": "Tilapia", "category": "Fish", "unit": "kg", "image_url": None},
-    {"name": "Galunggong", "category": "Fish", "unit": "kg", "image_url": None},
+    {"name": "Beef Rump", "category": "Meat", "unit": "kg", "image_url": None},
+    # Fish & Seafood
+    {"name": "Bangus", "category": "Fish & Seafood", "unit": "kg", "image_url": None},
+    {"name": "Tilapia", "category": "Fish & Seafood", "unit": "kg", "image_url": None},
+    {"name": "Galunggong", "category": "Fish & Seafood", "unit": "kg", "image_url": None},
+    {"name": "Alumahan", "category": "Fish & Seafood", "unit": "kg", "image_url": None},
+    {"name": "Shrimp (Suahe)", "category": "Fish & Seafood", "unit": "kg", "image_url": None},
     # Fruits
     {"name": "Banana (Lakatan)", "category": "Fruits", "unit": "kg", "image_url": None},
     {"name": "Calamansi", "category": "Fruits", "unit": "kg", "image_url": None},
-    # Other essentials
-    {"name": "Egg (Large)", "category": "Poultry Products", "unit": "pc", "image_url": None},
+    {"name": "Mango (Carabao)", "category": "Fruits", "unit": "kg", "image_url": None},
+    # Poultry & Dairy
+    {"name": "Egg (Large)", "category": "Poultry & Dairy", "unit": "pc", "image_url": None},
+    # Other Essentials
     {"name": "Refined Sugar", "category": "Other Essentials", "unit": "kg", "image_url": None},
+    {"name": "Brown Sugar", "category": "Other Essentials", "unit": "kg", "image_url": None},
+    {"name": "Cooking Oil (Palm)", "category": "Other Essentials", "unit": "L", "image_url": None},
 ]
 
 # ---------------------------------------------------------------------------
@@ -107,10 +120,12 @@ BASE_PRICES: dict[str, Decimal] = {
     "Well-Milled Rice": Decimal("48.00"),
     "Regular-Milled Rice": Decimal("42.00"),
     "Premium Rice": Decimal("56.00"),
+    "Special Rice": Decimal("62.00"),
     # Vegetables
     "Red Onion": Decimal("130.00"),
     "White Onion": Decimal("110.00"),
     "Garlic (Imported)": Decimal("140.00"),
+    "Garlic (Local)": Decimal("200.00"),
     "Tomato": Decimal("60.00"),
     "Eggplant": Decimal("55.00"),
     "Ampalaya": Decimal("80.00"),
@@ -118,22 +133,33 @@ BASE_PRICES: dict[str, Decimal] = {
     "Cabbage": Decimal("50.00"),
     "Kangkong": Decimal("30.00"),
     "Sitaw": Decimal("70.00"),
+    "Chili (Labuyo)": Decimal("250.00"),
+    "Ginger": Decimal("120.00"),
+    "Potato": Decimal("85.00"),
+    "Carrots": Decimal("90.00"),
     # Meat
     "Pork Liempo": Decimal("325.00"),
     "Pork Kasim": Decimal("280.00"),
     "Whole Chicken": Decimal("190.00"),
     "Chicken Breast": Decimal("210.00"),
     "Beef Brisket": Decimal("380.00"),
-    # Fish
+    "Beef Rump": Decimal("400.00"),
+    # Fish & Seafood
     "Bangus": Decimal("170.00"),
     "Tilapia": Decimal("120.00"),
     "Galunggong": Decimal("160.00"),
+    "Alumahan": Decimal("200.00"),
+    "Shrimp (Suahe)": Decimal("350.00"),
     # Fruits
     "Banana (Lakatan)": Decimal("65.00"),
     "Calamansi": Decimal("80.00"),
-    # Other
+    "Mango (Carabao)": Decimal("100.00"),
+    # Poultry & Dairy
     "Egg (Large)": Decimal("8.00"),
+    # Other Essentials
     "Refined Sugar": Decimal("75.00"),
+    "Brown Sugar": Decimal("65.00"),
+    "Cooking Oil (Palm)": Decimal("72.00"),
 }
 
 # Volatility & spread multipliers per category (higher = more day-to-day swing)
@@ -141,9 +167,9 @@ _CATEGORY_VOLATILITY: dict[str, float] = {
     "Rice": 0.006,
     "Vegetables": 0.025,
     "Meat": 0.008,
-    "Fish": 0.020,
+    "Fish & Seafood": 0.020,
     "Fruits": 0.018,
-    "Poultry Products": 0.010,
+    "Poultry & Dairy": 0.010,
     "Other Essentials": 0.007,
 }
 
@@ -152,9 +178,9 @@ _CATEGORY_SPREAD: dict[str, Decimal] = {
     "Rice": Decimal("0.04"),
     "Vegetables": Decimal("0.08"),
     "Meat": Decimal("0.03"),
-    "Fish": Decimal("0.06"),
+    "Fish & Seafood": Decimal("0.06"),
     "Fruits": Decimal("0.07"),
-    "Poultry Products": Decimal("0.04"),
+    "Poultry & Dairy": Decimal("0.04"),
     "Other Essentials": Decimal("0.03"),
 }
 

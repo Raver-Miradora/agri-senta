@@ -1,7 +1,8 @@
 export const dynamic = "force-dynamic";
 
-import { Tags, Calendar, Receipt } from "lucide-react";
-import { LatestPrice, fetchFromApiOrDefault, formatPeso } from "@/lib/api";
+import { Tags, Receipt } from "lucide-react";
+import PricesTable from "@/components/PricesTable";
+import { LatestPrice, fetchFromApiOrDefault } from "@/lib/api";
 
 export default async function PricesPage() {
   const latest = await fetchFromApiOrDefault<LatestPrice[]>("/prices/latest", []);
@@ -15,7 +16,10 @@ export default async function PricesPage() {
           </div>
           <div>
             <h1>Price Explorer</h1>
-            <p className="subtitle">Current average market prices by commodity and region.</p>
+            <p className="subtitle">
+              Browse current market prices by commodity and region.
+              Use the category filter to narrow results.
+            </p>
           </div>
         </div>
       </div>
@@ -27,7 +31,7 @@ export default async function PricesPage() {
           </div>
           <div>
             <h3 className="section-title">Latest Market Prices</h3>
-            <p className="section-subtitle">{latest.length} price records found</p>
+            <p className="section-subtitle">{latest.length} price records across all regions</p>
           </div>
         </div>
 
@@ -39,35 +43,7 @@ export default async function PricesPage() {
             <p>No price data yet. Trigger scraping from admin endpoint or wait for scheduler.</p>
           </div>
         ) : (
-          <div className="table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th className="text-left">Commodity</th>
-                  <th className="text-left">Region</th>
-                  <th className="text-left">Date</th>
-                  <th className="text-right">Avg Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                {latest.map((row) => (
-                  <tr key={`${row.commodity_id}-${row.region_id}`}>
-                    <td style={{ fontWeight: 600 }}>{row.commodity_name}</td>
-                    <td>
-                      <span className="badge badge-blue">{row.region_code}</span>
-                    </td>
-                    <td>
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
-                        <Calendar size={13} style={{ color: "var(--muted)" }} />
-                        {row.date}
-                      </span>
-                    </td>
-                    <td className="text-right font-mono">{formatPeso(Number(row.avg_price))}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <PricesTable data={latest} />
         )}
       </div>
     </section>

@@ -37,6 +37,7 @@ async def get_latest_prices(session: AsyncSession) -> list[dict]:
         select(
             DailyPrice.commodity_id,
             Commodity.name.label("commodity_name"),
+            Commodity.category.label("commodity_category"),
             DailyPrice.region_id,
             Region.code.label("region_code"),
             DailyPrice.date,
@@ -48,6 +49,7 @@ async def get_latest_prices(session: AsyncSession) -> list[dict]:
         .group_by(
             DailyPrice.commodity_id,
             Commodity.name,
+            Commodity.category,
             DailyPrice.region_id,
             Region.code,
             DailyPrice.date,

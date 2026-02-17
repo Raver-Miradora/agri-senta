@@ -6,12 +6,12 @@ import {
   ShoppingBasket,
   MapPin,
   Receipt,
-  TrendingUp,
-  BarChart3,
   ArrowRight,
   Calendar,
+  Layers,
 } from "lucide-react";
 
+import DashboardTable from "@/components/DashboardTable";
 import { Commodity, LatestPrice, Region, fetchFromApiOrDefault, formatPeso } from "@/lib/api";
 
 export default async function HomePage() {
@@ -22,6 +22,9 @@ export default async function HomePage() {
 
   const latestPrices = await fetchFromApiOrDefault<LatestPrice[]>("/prices/latest", []);
   const latestDate = latestPrices[0]?.date ?? "N/A";
+
+  // Derive unique categories count
+  const categoryCount = new Set(commodities.map((c) => c.category)).size;
 
   return (
     <section className="page">
@@ -46,7 +49,7 @@ export default async function HomePage() {
       </div>
 
       {/* ── KPI Cards ── */}
-      <div className="grid">
+      <div className="grid grid-4">
         <div className="card kpi kpi-accent-blue">
           <div className="kpi-top">
             <p className="kpi-label">Commodities</p>
@@ -66,7 +69,7 @@ export default async function HomePage() {
             </div>
           </div>
           <p className="kpi-value">{regions.length}</p>
-          <p className="kpi-detail">Philippine regions monitored</p>
+          <p className="kpi-detail">Philippine regions</p>
         </div>
 
         <div className="card kpi kpi-accent-yellow">
@@ -79,9 +82,20 @@ export default async function HomePage() {
           <p className="kpi-value">{latestPrices.length}</p>
           <p className="kpi-detail">Latest price entries</p>
         </div>
+
+        <div className="card kpi kpi-accent-green">
+          <div className="kpi-top">
+            <p className="kpi-label">Categories</p>
+            <div className="kpi-icon kpi-icon-green">
+              <Layers size={20} />
+            </div>
+          </div>
+          <p className="kpi-value">{categoryCount}</p>
+          <p className="kpi-detail">Commodity groups</p>
+        </div>
       </div>
 
-      {/* ── Recent Prices Table ── */}
+      {/* ── Recent Prices Table with category filter ── */}
       <div className="card">
         <div className="card-header">
           <div className="card-header-icon page-icon-blue">
@@ -89,7 +103,7 @@ export default async function HomePage() {
           </div>
           <div>
             <h3 className="section-title">Recent Prices</h3>
-            <p className="section-subtitle">Latest prevailing market prices</p>
+            <p className="section-subtitle">Latest prevailing market prices — filter by commodity type</p>
           </div>
         </div>
 
@@ -101,42 +115,10 @@ export default async function HomePage() {
             <p>No price data available yet. Data will appear once scraping runs.</p>
           </div>
         ) : (
-          <div className="table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th className="text-left">Commodity</th>
-                  <th className="text-left">Region</th>
-                  <th className="text-right">Average Price</th>
-                  <th className="text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {latestPrices.slice(0, 10).map((row) => (
-                  <tr key={`${row.commodity_id}-${row.region_id}`}>
-                    <td style={{ fontWeight: 600 }}>{row.commodity_name}</td>
-                    <td>
-                      <span className="badge badge-blue">{row.region_code}</span>
-                    </td>
-                    <td className="text-right font-mono">{formatPeso(Number(row.avg_price))}</td>
-                    <td className="text-center">
-                      <Link className="chip-link" href={`/trends/${row.commodity_id}`}>
-                        <TrendingUp size={12} />
-                        Trend
-                      </Link>{" "}
-                      <Link className="chip-link" href={`/forecast/${row.commodity_id}`}>
-                        <BarChart3 size={12} />
-                        Forecast
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DashboardTable data={latestPrices} />
         )}
 
-        {latestPrices.length > 10 && (
+        {latestPrices.length > 12 && (
           <div style={{ marginTop: "1rem", textAlign: "center" }}>
             <Link className="btn btn-outline" href="/prices">
               View all prices

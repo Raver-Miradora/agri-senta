@@ -23,6 +23,7 @@ class DailyPriceResponse(BaseModel):
 class LatestPriceResponse(BaseModel):
     commodity_id: int
     commodity_name: str
+    commodity_category: str
     region_id: int
     region_code: str
     date: date

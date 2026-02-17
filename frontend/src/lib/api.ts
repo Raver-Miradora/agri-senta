@@ -44,6 +44,7 @@ export type Region = {
 export type LatestPrice = {
   commodity_id: number;
   commodity_name: string;
+  commodity_category: string;
   region_id: number;
   region_code: string;
   date: string;
@@ -93,6 +94,7 @@ export type ForecastPoint = {
 export type ForecastSummary = {
   commodity_id: number;
   commodity_name: string;
+  commodity_category: string;
   region_id: number;
   region_code: string;
   forecast_date: string;

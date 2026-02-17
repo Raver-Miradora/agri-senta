@@ -2,12 +2,15 @@ export const dynamic = "force-dynamic";
 
 import { BarChart3, TrendingUp, AlertTriangle, Activity } from "lucide-react";
 import SimpleLineChart from "@/components/charts/SimpleLineChart";
-import { PriceSpike, WeeklyVariance, fetchFromApiOrDefault, formatPeso } from "@/lib/api";
+import SpikesTable from "@/components/SpikesTable";
+import { Commodity, Region, PriceSpike, WeeklyVariance, fetchFromApiOrDefault } from "@/lib/api";
 
 export default async function AnalyticsPage() {
-  const [weeklyVariance, spikes] = await Promise.all([
+  const [weeklyVariance, spikes, commodities, regions] = await Promise.all([
     fetchFromApiOrDefault<WeeklyVariance[]>("/analytics/weekly-variance", []),
     fetchFromApiOrDefault<PriceSpike[]>("/analytics/price-spikes", []),
+    fetchFromApiOrDefault<Commodity[]>("/commodities", []),
+    fetchFromApiOrDefault<Region[]>("/regions", []),
   ]);
 
   const lineData = weeklyVariance
@@ -19,6 +22,12 @@ export default async function AnalyticsPage() {
       wow_change: Number(row.wow_percent_change ?? 0),
     }));
 
+  // Build name lookup maps so the spikes table shows real names
+  const commodityNames: Record<number, string> = {};
+  commodities.forEach((c) => { commodityNames[c.id] = c.name; });
+  const regionCodes: Record<number, string> = {};
+  regions.forEach((r) => { regionCodes[r.id] = r.code; });
+
   return (
     <section className="page">
       <div className="page-header">
@@ -28,7 +37,7 @@ export default async function AnalyticsPage() {
           </div>
           <div>
             <h1>Analytics</h1>
-            <p className="subtitle">Weekly variance and detected price spike events from live data.</p>
+            <p className="subtitle">Weekly variance trends and detected price spike events.</p>
           </div>
         </div>
       </div>
@@ -67,32 +76,7 @@ export default async function AnalyticsPage() {
             <p>No spikes detected from current data.</p>
           </div>
         ) : (
-          <div className="table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th className="text-left">Date</th>
-                  <th className="text-left">Commodity ID</th>
-                  <th className="text-left">Region ID</th>
-                  <th className="text-right">Avg Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                {spikes.slice(0, 20).map((row, index) => (
-                  <tr key={`${row.commodity_id}-${row.region_id}-${row.date}-${index}`}>
-                    <td>{row.date}</td>
-                    <td>
-                      <span className="badge badge-blue">{row.commodity_id}</span>
-                    </td>
-                    <td>
-                      <span className="badge badge-red">{row.region_id}</span>
-                    </td>
-                    <td className="text-right font-mono">{formatPeso(Number(row.avg_price))}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <SpikesTable data={spikes} commodityNames={commodityNames} regionCodes={regionCodes} />
         )}
       </div>
     </section>

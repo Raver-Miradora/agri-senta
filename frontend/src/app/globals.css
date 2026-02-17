@@ -319,6 +319,12 @@ main {
   gap: 1rem;
 }
 
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
 .grid-2 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
@@ -650,6 +656,169 @@ main {
 }
 
 /* ══════════════════════════════════════════════════════
+   TOOLBAR (Category filter + search)
+   ══════════════════════════════════════════════════════ */
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+/* ── Category Filter ── */
+.category-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.category-chip:hover {
+  border-color: var(--agri-blue);
+  color: var(--agri-blue);
+  background: var(--agri-blue-light);
+}
+
+.category-chip.active {
+  border-color: var(--agri-blue);
+  background: var(--agri-blue);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ── Search box ── */
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  max-width: 360px;
+}
+
+.search-box:focus-within {
+  border-color: var(--agri-blue);
+  box-shadow: 0 0 0 3px var(--agri-blue-light);
+}
+
+.search-box svg {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.88rem;
+  color: var(--text);
+  width: 100%;
+  font-family: inherit;
+}
+
+.search-input::placeholder {
+  color: var(--muted);
+}
+
+/* ── Results summary ── */
+.results-summary {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+.results-filter {
+  margin-left: 0.25rem;
+}
+
+/* ══════════════════════════════════════════════════════
+   PAGINATION
+   ══════════════════════════════════════════════════════ */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.pagination-info {
+  font-size: 0.82rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  padding: 0 0.35rem;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  border-color: var(--agri-blue);
+  color: var(--agri-blue);
+  background: var(--agri-blue-light);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.pagination-btn.active {
+  background: var(--agri-blue);
+  border-color: var(--agri-blue);
+  color: #fff;
+  font-weight: 700;
+}
+
+.pagination-dots {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  color: var(--muted);
+  font-size: 0.92rem;
+  user-select: none;
+}
+
+/* ══════════════════════════════════════════════════════
    SKELETON / LOADING
    ══════════════════════════════════════════════════════ */
 .skeleton {
@@ -874,6 +1043,10 @@ main {
     grid-template-columns: 1fr;
   }
 
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .kpi-value {
     font-size: 1.65rem;
   }
@@ -885,6 +1058,24 @@ main {
   .footer-inner {
     flex-direction: column;
     text-align: center;
+  }
+
+  .search-box {
+    max-width: 100%;
+  }
+
+  .pagination {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pagination-info {
+    text-align: center;
+  }
+
+  .pagination-controls {
+    justify-content: center;
+    flex-wrap: wrap;
   }
 }
 
@@ -905,5 +1096,14 @@ main {
   .page-icon {
     width: 36px;
     height: 36px;
+  }
+
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .category-chip {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.65rem;
   }
 }

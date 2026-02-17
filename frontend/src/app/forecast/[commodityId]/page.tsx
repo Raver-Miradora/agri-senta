@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { TrendingUp, ChevronRight, Brain, Calendar } from "lucide-react";
 import ForecastBandChart from "@/components/charts/ForecastBandChart";
-import { ForecastPoint, fetchFromApiOrDefault, formatPeso } from "@/lib/api";
+import { Commodity, ForecastPoint, Region, fetchFromApiOrDefault, formatPeso } from "@/lib/api";
 
 type ForecastCommodityPageProps = {
   params: Promise<{ commodityId: string }>;
@@ -9,7 +9,19 @@ type ForecastCommodityPageProps = {
 
 export default async function ForecastCommodityPage({ params }: ForecastCommodityPageProps) {
   const { commodityId } = await params;
-  const rows = await fetchFromApiOrDefault<ForecastPoint[]>(`/forecast/${commodityId}`, []);
+
+  const [rows, commodities, regions] = await Promise.all([
+    fetchFromApiOrDefault<ForecastPoint[]>(`/forecast/${commodityId}`, []),
+    fetchFromApiOrDefault<Commodity[]>("/commodities", []),
+    fetchFromApiOrDefault<Region[]>("/regions", []),
+  ]);
+
+  const commodity = commodities.find((c) => c.id === Number(commodityId));
+  const commodityLabel = commodity?.name ?? `Commodity ${commodityId}`;
+
+  const regionMap: Record<number, string> = {};
+  regions.forEach((r) => { regionMap[r.id] = r.code; });
+
   const chartData = rows.map((row) => ({
     day: row.forecast_date,
     predicted_price: Number(row.predicted_price),
@@ -23,7 +35,7 @@ export default async function ForecastCommodityPage({ params }: ForecastCommodit
       <nav className="breadcrumb">
         <Link href="/forecast">Forecast</Link>
         <ChevronRight size={14} />
-        <span>Commodity {commodityId}</span>
+        <span>{commodityLabel}</span>
       </nav>
 
       <div className="page-header">
@@ -32,8 +44,8 @@ export default async function ForecastCommodityPage({ params }: ForecastCommodit
             <TrendingUp size={22} />
           </div>
           <div>
-            <h1>Forecast Detail: Commodity {commodityId}</h1>
-            <p className="subtitle">7-day prediction with confidence band.</p>
+            <h1>{commodityLabel}</h1>
+            <p className="subtitle">7-day price prediction with confidence band.</p>
           </div>
         </div>
       </div>
@@ -65,6 +77,7 @@ export default async function ForecastCommodityPage({ params }: ForecastCommodit
             <thead>
               <tr>
                 <th className="text-left">Date</th>
+                <th className="text-left">Region</th>
                 <th className="text-right">Predicted</th>
                 <th className="text-right">Lower</th>
                 <th className="text-right">Upper</th>
@@ -79,6 +92,9 @@ export default async function ForecastCommodityPage({ params }: ForecastCommodit
                       <Calendar size={13} style={{ color: "var(--muted)" }} />
                       {row.forecast_date}
                     </span>
+                  </td>
+                  <td>
+                    <span className="badge badge-blue">{regionMap[row.region_id] ?? row.region_id}</span>
                   </td>
                   <td className="text-right font-mono">{formatPeso(Number(row.predicted_price))}</td>
                   <td className="text-right font-mono">{formatPeso(Number(row.confidence_lower ?? row.predicted_price))}</td>

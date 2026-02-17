@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { LineChart, ChevronRight, Calendar } from "lucide-react";
 import SimpleLineChart from "@/components/charts/SimpleLineChart";
-import { PriceHistory, fetchFromApiOrDefault, formatPeso } from "@/lib/api";
+import { Commodity, PriceHistory, fetchFromApiOrDefault, formatPeso } from "@/lib/api";
 
 type TrendPageProps = {
   params: Promise<{ commodityId: string }>;
@@ -9,7 +9,15 @@ type TrendPageProps = {
 
 export default async function TrendPage({ params }: TrendPageProps) {
   const { commodityId } = await params;
-  const history = await fetchFromApiOrDefault<PriceHistory[]>(`/prices/history/${commodityId}`, []);
+
+  const [history, commodities] = await Promise.all([
+    fetchFromApiOrDefault<PriceHistory[]>(`/prices/history/${commodityId}`, []),
+    fetchFromApiOrDefault<Commodity[]>("/commodities", []),
+  ]);
+
+  const commodity = commodities.find((c) => c.id === Number(commodityId));
+  const commodityLabel = commodity?.name ?? `Commodity ${commodityId}`;
+
   const chartData = history.map((row) => ({ day: row.date, avg_price: Number(row.avg_price) }));
 
   return (
@@ -20,7 +28,7 @@ export default async function TrendPage({ params }: TrendPageProps) {
         <ChevronRight size={14} />
         <span>Trends</span>
         <ChevronRight size={14} />
-        <span>Commodity {commodityId}</span>
+        <span>{commodityLabel}</span>
       </nav>
 
       <div className="page-header">
@@ -29,7 +37,7 @@ export default async function TrendPage({ params }: TrendPageProps) {
             <LineChart size={22} />
           </div>
           <div>
-            <h1>Price Trends: Commodity {commodityId}</h1>
+            <h1>{commodityLabel}</h1>
             <p className="subtitle">Historical average prices over time.</p>
           </div>
         </div>

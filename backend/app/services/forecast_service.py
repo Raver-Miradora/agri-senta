@@ -104,6 +104,7 @@ async def get_forecast_summary(session: AsyncSession) -> list[dict]:
         select(
             PriceForecast.commodity_id,
             Commodity.name.label("commodity_name"),
+            Commodity.category.label("commodity_category"),
             PriceForecast.region_id,
             Region.code.label("region_code"),
             PriceForecast.forecast_date,

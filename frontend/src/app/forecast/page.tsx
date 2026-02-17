@@ -1,9 +1,8 @@
 export const dynamic = "force-dynamic";
 
-import Link from "next/link";
-import { TrendingUp, Brain, ArrowRight, Calendar } from "lucide-react";
-
-import { ForecastSummary, fetchFromApiOrDefault, formatPeso } from "@/lib/api";
+import { TrendingUp, Brain } from "lucide-react";
+import ForecastTable from "@/components/ForecastTable";
+import { ForecastSummary, fetchFromApiOrDefault } from "@/lib/api";
 
 export default async function ForecastPage() {
   const rows = await fetchFromApiOrDefault<ForecastSummary[]>("/forecast/summary", []);
@@ -17,7 +16,10 @@ export default async function ForecastPage() {
           </div>
           <div>
             <h1>Forecast</h1>
-            <p className="subtitle">Nearest available forecast entry per commodity-region pair.</p>
+            <p className="subtitle">
+              ML-generated price predictions per commodity-region pair.
+              Filter by category to find specific forecasts quickly.
+            </p>
           </div>
         </div>
       </div>
@@ -41,46 +43,7 @@ export default async function ForecastPage() {
             <p>No forecast data yet. Ensure backend startup completed forecast generation.</p>
           </div>
         ) : (
-          <div className="table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th className="text-left">Commodity</th>
-                  <th className="text-left">Region</th>
-                  <th className="text-left">Forecast Date</th>
-                  <th className="text-right">Predicted Price</th>
-                  <th className="text-center">Model</th>
-                  <th className="text-center">Detail</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => (
-                  <tr key={`${row.commodity_id}-${row.region_id}-${row.forecast_date}`}>
-                    <td style={{ fontWeight: 600 }}>{row.commodity_name}</td>
-                    <td>
-                      <span className="badge badge-red">{row.region_code}</span>
-                    </td>
-                    <td>
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
-                        <Calendar size={13} style={{ color: "var(--muted)" }} />
-                        {row.forecast_date}
-                      </span>
-                    </td>
-                    <td className="text-right font-mono">{formatPeso(Number(row.predicted_price))}</td>
-                    <td className="text-center">
-                      <span className="badge badge-green">{row.model_used}</span>
-                    </td>
-                    <td className="text-center">
-                      <Link className="chip-link" href={`/forecast/${row.commodity_id}`}>
-                        <ArrowRight size={12} />
-                        Open
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <ForecastTable data={rows} />
         )}
       </div>
     </section>
