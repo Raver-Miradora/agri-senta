@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     default_admin_username: str = "admin"
     default_admin_password: str = "admin123"
 
+    # Rate limiting
+    rate_limit_default: str = "60/minute"
+    rate_limit_auth: str = "10/minute"
+
 
 @lru_cache
 def get_settings() -> Settings:

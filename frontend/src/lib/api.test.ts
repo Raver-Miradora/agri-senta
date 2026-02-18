@@ -36,10 +36,8 @@ describe("API Types", () => {
       name: "Well-Milled Rice",
       category: "Rice",
       unit: "kg",
-      image_url: null,
-      created_at: "2026-01-01T00:00:00",
     };
-    expect(commodity.image_url).toBeNull();
+    expect(commodity.unit).toBe("kg");
   });
 
   it("Region type has expected shape", () => {
@@ -48,7 +46,6 @@ describe("API Types", () => {
       name: "National Capital Region",
       code: "NCR",
       island_group: "Luzon",
-      created_at: "2026-01-01T00:00:00",
     };
     expect(region.island_group).toBe("Luzon");
   });

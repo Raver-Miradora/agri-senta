@@ -2,10 +2,11 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { ArrowRight, Calendar, Search } from "lucide-react";
+import { ArrowRight, Calendar, Search, Download } from "lucide-react";
 import Pagination from "@/components/Pagination";
 import CategoryFilter from "@/components/CategoryFilter";
 import { ForecastSummary, formatPeso } from "@/lib/api";
+import { downloadCSV } from "@/lib/export";
 
 type ForecastTableProps = {
   data: ForecastSummary[];
@@ -52,6 +53,21 @@ export default function ForecastTable({ data }: ForecastTableProps) {
     setPage(1);
   };
 
+  const handleExportCSV = () => {
+    downloadCSV(
+      filtered,
+      [
+        { key: "commodity_name", label: "Commodity" },
+        { key: "commodity_category", label: "Category" },
+        { key: "region_code", label: "Region" },
+        { key: "forecast_date", label: "Forecast Date" },
+        { key: "predicted_price", label: "Predicted Price" },
+        { key: "model_used", label: "Model" },
+      ],
+      "agri-senta-forecasts.csv"
+    );
+  };
+
   return (
     <>
       <div className="toolbar">
@@ -67,6 +83,10 @@ export default function ForecastTable({ data }: ForecastTableProps) {
             aria-label="Search forecasts"
           />
         </div>
+        <button className="chip-link" onClick={handleExportCSV} title="Export filtered data as CSV">
+          <Download size={14} />
+          Export CSV
+        </button>
       </div>
 
       <div className="results-summary">

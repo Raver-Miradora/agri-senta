@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import Navbar from "@/components/Navbar";
 import { AuthProvider } from "@/lib/AuthContext";
+import { ThemeProvider } from "@/lib/ThemeContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,8 +18,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
+        <ThemeProvider>
         <AuthProvider>
           <Navbar />
           <main>{children}</main>
@@ -45,6 +47,7 @@ export default function RootLayout({
           </div>
         </footer>
         </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -2,10 +2,11 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Calendar, TrendingUp, BarChart3, Search } from "lucide-react";
+import { Calendar, TrendingUp, BarChart3, Search, Download } from "lucide-react";
 import Pagination from "@/components/Pagination";
 import CategoryFilter from "@/components/CategoryFilter";
 import { LatestPrice, formatPeso } from "@/lib/api";
+import { downloadCSV } from "@/lib/export";
 
 type PricesTableProps = {
   data: LatestPrice[];
@@ -53,6 +54,20 @@ export default function PricesTable({ data }: PricesTableProps) {
     setPage(1);
   };
 
+  const handleExportCSV = () => {
+    downloadCSV(
+      filtered,
+      [
+        { key: "commodity_name", label: "Commodity" },
+        { key: "commodity_category", label: "Category" },
+        { key: "region_code", label: "Region" },
+        { key: "date", label: "Date" },
+        { key: "avg_price", label: "Average Price" },
+      ],
+      "agri-senta-prices.csv"
+    );
+  };
+
   return (
     <>
       {/* ── Toolbar: category filter + search ── */}
@@ -69,6 +84,10 @@ export default function PricesTable({ data }: PricesTableProps) {
             aria-label="Search commodities"
           />
         </div>
+        <button className="chip-link" onClick={handleExportCSV} title="Export filtered data as CSV">
+          <Download size={14} />
+          Export CSV
+        </button>
       </div>
 
       {/* ── Results summary ── */}

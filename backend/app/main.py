@@ -3,10 +3,13 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from app.config import get_settings
 from app.database import AsyncSessionLocal, engine
 from app.models.base import Base
+from app.rate_limit import limiter
 from app.routers import api_router
 from app.scraping.scheduler import create_scheduler
 from app.services.auth_service import create_user, get_user_by_username
@@ -66,6 +69,10 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title=settings.app_name, version=settings.app_version, lifespan=lifespan)
+
+# Rate limiting
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,

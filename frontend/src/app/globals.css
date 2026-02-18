@@ -1107,3 +1107,156 @@ main {
     padding: 0.3rem 0.65rem;
   }
 }
+
+/* ══════════════════════════════════════════════════════
+   DARK MODE
+   ══════════════════════════════════════════════════════ */
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --bg-subtle: #1e293b;
+  --text: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --muted: #64748b;
+  --card: #1e293b;
+  --border: #334155;
+  --border-light: #1e293b;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+  --agri-blue-light: #172554;
+  --agri-red-light: #3b1520;
+  --agri-yellow-light: #3b3510;
+  --agri-green-light: #14352a;
+}
+
+[data-theme="dark"] .nav {
+  background: rgba(15, 23, 42, 0.85);
+}
+
+[data-theme="dark"] .data-table tbody tr:hover {
+  background: #1e293b;
+}
+
+[data-theme="dark"] .chip-link:hover {
+  background: #1e3a5f;
+}
+
+[data-theme="dark"] .skeleton,
+[data-theme="dark"] .skeleton-line,
+[data-theme="dark"] .skeleton-circle {
+  background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+  background-size: 200% 100%;
+}
+
+/* ── Theme toggle button ── */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+}
+
+.theme-toggle:hover {
+  background: var(--agri-blue-light);
+  color: var(--agri-blue);
+  border-color: var(--agri-blue);
+}
+
+/* ══════════════════════════════════════════════════════
+   DARK MODE
+   ══════════════════════════════════════════════════════ */
+[data-theme="dark"] {
+  --agri-blue: #5b8def;
+  --agri-blue-light: #1e293b;
+  --agri-blue-hover: #7ba4f7;
+  --agri-red: #f87171;
+  --agri-red-light: #2d1b1e;
+  --agri-yellow: #facc15;
+  --agri-yellow-light: #2d2a14;
+  --agri-green: #4ade80;
+  --agri-green-light: #142a1e;
+
+  --bg: #0f172a;
+  --bg-subtle: #1e293b;
+  --text: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --muted: #64748b;
+  --card: #1e293b;
+  --border: #334155;
+  --border-light: #1e293b;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* Nav background override */
+[data-theme="dark"] .nav {
+  background: rgba(15, 23, 42, 0.85);
+}
+
+/* Table row hover */
+[data-theme="dark"] .tbl-row:hover {
+  background: #263348;
+}
+
+/* Chip-link hover */
+[data-theme="dark"] .chip-link:hover {
+  background: #334155;
+}
+
+/* Skeleton shimmer */
+[data-theme="dark"] .skeleton,
+[data-theme="dark"] .skeleton-text {
+  background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+  background-size: 200% 100%;
+}
+
+/* Yellow badge / chip text */
+[data-theme="dark"] .badge-warning,
+[data-theme="dark"] .spike-badge {
+  color: #facc15;
+}
+
+/* Button color overrides */
+[data-theme="dark"] .nav-logo {
+  background: linear-gradient(135deg, #5b8def, #7ba4f7);
+}
+
+/* Hardcoded #fff text stays white in dark mode — no override needed */
+
+/* Dark mode transition for smooth toggling */
+html[data-theme],
+html[data-theme] * {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+  margin-left: 0.25rem;
+}
+
+.theme-toggle:hover {
+  background: var(--agri-blue-light);
+  color: var(--agri-blue);
+  border-color: var(--agri-blue);
+}
