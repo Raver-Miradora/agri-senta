@@ -1,84 +1,177 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
-import { Calendar, TrendingUp, BarChart3 } from "lucide-react";
+import { TrendingUp, BarChart3, Search, MapPin, ChevronDown } from "lucide-react";
 import Pagination from "@/components/Pagination";
 import CategoryFilter from "@/components/CategoryFilter";
-import { LatestPrice, formatPeso } from "@/lib/api";
+import {
+  Region,
+  LatestPrice,
+  PaginatedLatestPrices,
+  LatestPriceQuery,
+  buildLatestPricesUrl,
+  fetchFromApi,
+  formatPeso,
+} from "@/lib/api";
 
 type DashboardTableProps = {
-  data: LatestPrice[];
+  regions: Region[];
+  categories: string[];
+  initialData: PaginatedLatestPrices;
 };
 
 const ITEMS_PER_PAGE = 12;
+const DEBOUNCE_MS = 300;
 
-export default function DashboardTable({ data }: DashboardTableProps) {
+export default function DashboardTable({ regions, categories, initialData }: DashboardTableProps) {
   const [category, setCategory] = useState("All");
+  const [regionId, setRegionId] = useState<number | undefined>(undefined);
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [data, setData] = useState<PaginatedLatestPrices>(initialData);
+  const [loading, setLoading] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const categories = useMemo(
-    () => Array.from(new Set(data.map((r) => r.commodity_category))).sort(),
-    [data]
+  const fetchData = useCallback(
+    async (params: LatestPriceQuery) => {
+      setLoading(true);
+      try {
+        const url = buildLatestPricesUrl(params);
+        const result = await fetchFromApi<PaginatedLatestPrices>(url);
+        setData(result);
+      } catch {
+        /* keep stale data on error */
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
   );
 
-  const filtered = useMemo(() => {
-    if (category === "All") return data;
-    return data.filter((r) => r.commodity_category === category);
-  }, [data, category]);
+  // Fetch when filters change
+  useEffect(() => {
+    const params: LatestPriceQuery = {
+      limit: ITEMS_PER_PAGE,
+      offset: (page - 1) * ITEMS_PER_PAGE,
+    };
+    if (search.trim()) params.search = search.trim();
+    if (category !== "All") params.category = category;
+    if (regionId) params.region_id = regionId;
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
-  const safePage = Math.min(page, totalPages);
-  const pageData = filtered.slice((safePage - 1) * ITEMS_PER_PAGE, safePage * ITEMS_PER_PAGE);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => fetchData(params), DEBOUNCE_MS);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [search, category, regionId, page, fetchData]);
+
+  const totalPages = Math.max(1, Math.ceil(data.total / ITEMS_PER_PAGE));
 
   const handleCategoryChange = (cat: string) => {
     setCategory(cat);
     setPage(1);
   };
+  const handleRegionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setRegionId(val ? Number(val) : undefined);
+    setPage(1);
+  };
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
 
   return (
     <>
-      <CategoryFilter categories={categories} selected={category} onChange={handleCategoryChange} />
+      {/* ── Filters row ── */}
+      <div className="toolbar">
+        <CategoryFilter categories={categories} selected={category} onChange={handleCategoryChange} />
 
-      <div className="table-wrap">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th className="text-left">Commodity</th>
-              <th className="text-left">Category</th>
-              <th className="text-left">Region</th>
-              <th className="text-right">Average Price</th>
-              <th className="text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pageData.map((row) => (
-              <tr key={`${row.commodity_id}-${row.region_id}`}>
-                <td style={{ fontWeight: 600 }}>{row.commodity_name}</td>
-                <td>
-                  <span className="badge badge-yellow">{row.commodity_category}</span>
-                </td>
-                <td>
-                  <span className="badge badge-blue">{row.region_code}</span>
-                </td>
-                <td className="text-right font-mono">{formatPeso(Number(row.avg_price))}</td>
-                <td className="text-center">
-                  <Link className="chip-link" href={`/trends/${row.commodity_id}`}>
-                    <TrendingUp size={12} />
-                    Trend
-                  </Link>{" "}
-                  <Link className="chip-link" href={`/forecast/${row.commodity_id}`}>
-                    <BarChart3 size={12} />
-                    Forecast
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="filter-row">
+          <div className="search-box">
+            <Search size={16} />
+            <input
+              type="text"
+              placeholder="Search commodity…"
+              value={search}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="search-input"
+              aria-label="Search commodities"
+            />
+          </div>
+
+          <div className="select-wrap">
+            <MapPin size={14} />
+            <select
+              value={regionId ?? ""}
+              onChange={handleRegionChange}
+              className="filter-select"
+              aria-label="Filter by region"
+            >
+              <option value="">All Regions</option>
+              {regions.map((r) => (
+                <option key={r.id} value={r.id}>{r.code} — {r.name}</option>
+              ))}
+            </select>
+            <ChevronDown size={14} className="select-chevron" />
+          </div>
+        </div>
       </div>
 
-      <Pagination currentPage={safePage} totalPages={totalPages} onPageChange={setPage} />
+      {/* ── Results summary ── */}
+      <div className="results-summary">
+        Showing <strong>{data.items.length}</strong> of <strong>{data.total}</strong> results
+        {loading && <span className="loading-indicator"> Loading…</span>}
+      </div>
+
+      {/* ── Table ── */}
+      {data.items.length === 0 ? (
+        <div className="empty">
+          <p>No prices match your filters. Try adjusting the search or category.</p>
+        </div>
+      ) : (
+        <div className="table-wrap">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th className="text-left">Commodity</th>
+                <th className="text-left">Category</th>
+                <th className="text-left">Region</th>
+                <th className="text-right">Average Price</th>
+                <th className="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.items.map((row: LatestPrice) => (
+                <tr key={`${row.commodity_id}-${row.region_id}`}>
+                  <td style={{ fontWeight: 600 }}>{row.commodity_name}</td>
+                  <td>
+                    <span className="badge badge-yellow">{row.commodity_category}</span>
+                  </td>
+                  <td>
+                    <span className="badge badge-blue">{row.region_code}</span>
+                  </td>
+                  <td className="text-right font-mono">{formatPeso(Number(row.avg_price))}</td>
+                  <td className="text-center">
+                    <Link className="chip-link" href={`/trends/${row.commodity_id}`}>
+                      <TrendingUp size={12} />
+                      Trend
+                    </Link>{" "}
+                    <Link className="chip-link" href={`/forecast/${row.commodity_id}`}>
+                      <BarChart3 size={12} />
+                      Forecast
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <Pagination currentPage={Math.min(page, totalPages)} totalPages={totalPages} onPageChange={setPage} />
     </>
   );
 }

@@ -9,7 +9,12 @@ from app.schemas.analytics import (
 )
 from app.schemas.commodity import CommodityResponse
 from app.schemas.forecast import ForecastPointResponse, ForecastSummaryResponse
-from app.schemas.price import DailyPriceResponse, LatestPriceResponse, PriceHistoryResponse
+from app.schemas.price import (
+    DailyPriceResponse,
+    LatestPriceResponse,
+    PaginatedLatestPriceResponse,
+    PriceHistoryResponse,
+)
 from app.schemas.region import RegionResponse
 
 __all__ = [
@@ -19,6 +24,7 @@ __all__ = [
     "ScrapeLogResponse",
     "DailyPriceResponse",
     "LatestPriceResponse",
+    "PaginatedLatestPriceResponse",
     "PriceHistoryResponse",
     "ForecastPointResponse",
     "ForecastSummaryResponse",

@@ -12,19 +12,23 @@ import {
 } from "lucide-react";
 
 import DashboardTable from "@/components/DashboardTable";
-import { Commodity, LatestPrice, Region, fetchFromApiOrDefault, formatPeso } from "@/lib/api";
+import { Commodity, PaginatedLatestPrices, Region, fetchFromApiOrDefault } from "@/lib/api";
 
 export default async function HomePage() {
-  const [commodities, regions] = await Promise.all([
+  const [commodities, regions, initialPrices] = await Promise.all([
     fetchFromApiOrDefault<Commodity[]>("/commodities", []),
     fetchFromApiOrDefault<Region[]>("/regions", []),
+    fetchFromApiOrDefault<PaginatedLatestPrices>("/prices/latest?limit=12&offset=0", {
+      items: [],
+      total: 0,
+      limit: 12,
+      offset: 0,
+    }),
   ]);
 
-  const latestPrices = await fetchFromApiOrDefault<LatestPrice[]>("/prices/latest", []);
-  const latestDate = latestPrices[0]?.date ?? "N/A";
-
-  // Derive unique categories count
-  const categoryCount = new Set(commodities.map((c) => c.category)).size;
+  const latestDate = initialPrices.items[0]?.date ?? "N/A";
+  const categories = Array.from(new Set(commodities.map((c) => c.category))).sort();
+  const categoryCount = categories.length;
 
   return (
     <section className="page">
@@ -79,7 +83,7 @@ export default async function HomePage() {
               <Receipt size={20} />
             </div>
           </div>
-          <p className="kpi-value">{latestPrices.length}</p>
+          <p className="kpi-value">{initialPrices.total}</p>
           <p className="kpi-detail">Latest price entries</p>
         </div>
 
@@ -103,11 +107,11 @@ export default async function HomePage() {
           </div>
           <div>
             <h3 className="section-title">Recent Prices</h3>
-            <p className="section-subtitle">Latest prevailing market prices — filter by commodity type</p>
+            <p className="section-subtitle">Latest prevailing market prices — filter by commodity type, region, or search</p>
           </div>
         </div>
 
-        {latestPrices.length === 0 ? (
+        {initialPrices.total === 0 ? (
           <div className="empty">
             <div className="empty-icon">
               <Receipt size={24} />
@@ -115,17 +119,19 @@ export default async function HomePage() {
             <p>No price data available yet. Data will appear once scraping runs.</p>
           </div>
         ) : (
-          <DashboardTable data={latestPrices} />
+          <DashboardTable
+            regions={regions}
+            categories={categories}
+            initialData={initialPrices}
+          />
         )}
 
-        {latestPrices.length > 12 && (
-          <div style={{ marginTop: "1rem", textAlign: "center" }}>
-            <Link className="btn btn-outline" href="/prices">
-              View all prices
-              <ArrowRight size={16} />
-            </Link>
-          </div>
-        )}
+        <div style={{ marginTop: "1rem", textAlign: "center" }}>
+          <Link className="btn btn-outline" href="/prices">
+            View all prices
+            <ArrowRight size={16} />
+          </Link>
+        </div>
       </div>
     </section>
   );

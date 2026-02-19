@@ -4,7 +4,12 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db_session
-from app.schemas.price import DailyPriceResponse, LatestPriceResponse, PriceHistoryResponse
+from app.schemas.price import (
+    DailyPriceResponse,
+    LatestPriceResponse,
+    PaginatedLatestPriceResponse,
+    PriceHistoryResponse,
+)
 from app.services.price_service import get_daily_prices, get_latest_prices, get_price_history
 
 router = APIRouter(prefix="/prices", tags=["Prices"])
@@ -29,10 +34,29 @@ async def list_daily_prices(
     )
 
 
-@router.get("/latest", response_model=list[LatestPriceResponse])
-async def list_latest_prices(db: AsyncSession = Depends(get_db_session)) -> list[LatestPriceResponse]:
-    rows = await get_latest_prices(db)
-    return [LatestPriceResponse(**row) for row in rows]
+@router.get("/latest", response_model=PaginatedLatestPriceResponse)
+async def list_latest_prices(
+    search: str | None = Query(default=None, max_length=100, description="Search commodity name"),
+    category: str | None = Query(default=None, description="Filter by category"),
+    region_id: int | None = Query(default=None, description="Filter by region ID"),
+    limit: int = Query(default=20, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
+    db: AsyncSession = Depends(get_db_session),
+) -> PaginatedLatestPriceResponse:
+    items, total = await get_latest_prices(
+        db,
+        search=search,
+        category=category,
+        region_id=region_id,
+        limit=limit,
+        offset=offset,
+    )
+    return PaginatedLatestPriceResponse(
+        items=[LatestPriceResponse(**row) for row in items],
+        total=total,
+        limit=limit,
+        offset=offset,
+    )
 
 
 @router.get("/history/{commodity_id}", response_model=list[PriceHistoryResponse])

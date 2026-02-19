@@ -112,6 +112,32 @@ export type LatestPrice = {
   avg_price: number;
 };
 
+export type PaginatedLatestPrices = {
+  items: LatestPrice[];
+  total: number;
+  limit: number;
+  offset: number;
+};
+
+export type LatestPriceQuery = {
+  search?: string;
+  category?: string;
+  region_id?: number;
+  limit?: number;
+  offset?: number;
+};
+
+export function buildLatestPricesUrl(params: LatestPriceQuery = {}): string {
+  const sp = new URLSearchParams();
+  if (params.search) sp.set("search", params.search);
+  if (params.category) sp.set("category", params.category);
+  if (params.region_id) sp.set("region_id", String(params.region_id));
+  if (params.limit) sp.set("limit", String(params.limit));
+  if (params.offset !== undefined) sp.set("offset", String(params.offset));
+  const qs = sp.toString();
+  return `/prices/latest${qs ? `?${qs}` : ""}`;
+}
+
 export type PriceHistory = {
   date: string;
   avg_price: number;

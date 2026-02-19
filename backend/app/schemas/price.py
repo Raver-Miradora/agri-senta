@@ -30,6 +30,13 @@ class LatestPriceResponse(BaseModel):
     avg_price: Decimal
 
 
+class PaginatedLatestPriceResponse(BaseModel):
+    items: list[LatestPriceResponse]
+    total: int
+    limit: int
+    offset: int
+
+
 class PriceHistoryResponse(BaseModel):
     date: date
     avg_price: Decimal

@@ -1,4 +1,4 @@
-"""Seed data for Agri-Senta: all 17 Philippine regions, 35 commodities, 17 markets.
+"""Seed data for Agri-Senta: 17 Philippine regions, 210+ commodities, 17 markets.
 
 Generates 90 days of realistic daily price history for every
 commodity-region pair with category-specific volatility, seasonal
@@ -39,55 +39,261 @@ SEED_REGIONS = [
 ]
 
 # ---------------------------------------------------------------------------
-# 35 key Philippine commodities across 8 categories
-# Prices sourced from typical DA / Bantay Presyo ranges
+# 222 key Philippine market commodities — compact tuple format:
+#   (name, category, unit, base_price_php)
+# Prices sourced from typical DA / Bantay Presyo ranges (PHP, 2024-2025)
 # ---------------------------------------------------------------------------
-SEED_COMMODITIES = [
-    # Rice
-    {"name": "Well-Milled Rice", "category": "Rice", "unit": "kg", "image_url": None},
-    {"name": "Regular-Milled Rice", "category": "Rice", "unit": "kg", "image_url": None},
-    {"name": "Premium Rice", "category": "Rice", "unit": "kg", "image_url": None},
-    {"name": "Special Rice", "category": "Rice", "unit": "kg", "image_url": None},
-    # Vegetables
-    {"name": "Red Onion", "category": "Vegetables", "unit": "kg", "image_url": None},
-    {"name": "White Onion", "category": "Vegetables", "unit": "kg", "image_url": None},
-    {"name": "Garlic (Imported)", "category": "Vegetables", "unit": "kg", "image_url": None},
-    {"name": "Garlic (Local)", "category": "Vegetables", "unit": "kg", "image_url": None},
-    {"name": "Tomato", "category": "Vegetables", "unit": "kg", "image_url": None},
-    {"name": "Eggplant", "category": "Vegetables", "unit": "kg", "image_url": None},
-    {"name": "Ampalaya", "category": "Vegetables", "unit": "kg", "image_url": None},
-    {"name": "Squash", "category": "Vegetables", "unit": "kg", "image_url": None},
-    {"name": "Cabbage", "category": "Vegetables", "unit": "kg", "image_url": None},
-    {"name": "Kangkong", "category": "Vegetables", "unit": "kg", "image_url": None},
-    {"name": "Sitaw", "category": "Vegetables", "unit": "kg", "image_url": None},
-    {"name": "Chili (Labuyo)", "category": "Vegetables", "unit": "kg", "image_url": None},
-    {"name": "Ginger", "category": "Vegetables", "unit": "kg", "image_url": None},
-    {"name": "Potato", "category": "Vegetables", "unit": "kg", "image_url": None},
-    {"name": "Carrots", "category": "Vegetables", "unit": "kg", "image_url": None},
-    # Meat
-    {"name": "Pork Liempo", "category": "Meat", "unit": "kg", "image_url": None},
-    {"name": "Pork Kasim", "category": "Meat", "unit": "kg", "image_url": None},
-    {"name": "Whole Chicken", "category": "Meat", "unit": "kg", "image_url": None},
-    {"name": "Chicken Breast", "category": "Meat", "unit": "kg", "image_url": None},
-    {"name": "Beef Brisket", "category": "Meat", "unit": "kg", "image_url": None},
-    {"name": "Beef Rump", "category": "Meat", "unit": "kg", "image_url": None},
-    # Fish & Seafood
-    {"name": "Bangus", "category": "Fish & Seafood", "unit": "kg", "image_url": None},
-    {"name": "Tilapia", "category": "Fish & Seafood", "unit": "kg", "image_url": None},
-    {"name": "Galunggong", "category": "Fish & Seafood", "unit": "kg", "image_url": None},
-    {"name": "Alumahan", "category": "Fish & Seafood", "unit": "kg", "image_url": None},
-    {"name": "Shrimp (Suahe)", "category": "Fish & Seafood", "unit": "kg", "image_url": None},
-    # Fruits
-    {"name": "Banana (Lakatan)", "category": "Fruits", "unit": "kg", "image_url": None},
-    {"name": "Calamansi", "category": "Fruits", "unit": "kg", "image_url": None},
-    {"name": "Mango (Carabao)", "category": "Fruits", "unit": "kg", "image_url": None},
-    # Poultry & Dairy
-    {"name": "Egg (Large)", "category": "Poultry & Dairy", "unit": "pc", "image_url": None},
-    # Other Essentials
-    {"name": "Refined Sugar", "category": "Other Essentials", "unit": "kg", "image_url": None},
-    {"name": "Brown Sugar", "category": "Other Essentials", "unit": "kg", "image_url": None},
-    {"name": "Cooking Oil (Palm)", "category": "Other Essentials", "unit": "L", "image_url": None},
+_RAW_COMMODITIES: list[tuple[str, str, str, float]] = [
+    # ── Rice (11) ──
+    ("Well-Milled Rice", "Rice", "kg", 48),
+    ("Regular-Milled Rice", "Rice", "kg", 42),
+    ("Premium Rice", "Rice", "kg", 56),
+    ("Special Rice", "Rice", "kg", 62),
+    ("NFA Rice", "Rice", "kg", 38),
+    ("Brown Rice", "Rice", "kg", 65),
+    ("Glutinous Rice (Malagkit)", "Rice", "kg", 55),
+    ("Jasmine Rice", "Rice", "kg", 58),
+    ("Sinandomeng Rice", "Rice", "kg", 52),
+    ("Dinorado Rice", "Rice", "kg", 60),
+    ("Black Rice (Tapol)", "Rice", "kg", 85),
+
+    # ── Vegetables (45) ──
+    ("Red Onion", "Vegetables", "kg", 130),
+    ("White Onion", "Vegetables", "kg", 110),
+    ("Garlic (Imported)", "Vegetables", "kg", 140),
+    ("Garlic (Local)", "Vegetables", "kg", 200),
+    ("Tomato", "Vegetables", "kg", 60),
+    ("Eggplant", "Vegetables", "kg", 55),
+    ("Ampalaya (Bitter Gourd)", "Vegetables", "kg", 80),
+    ("Squash (Kalabasa)", "Vegetables", "kg", 35),
+    ("Cabbage", "Vegetables", "kg", 50),
+    ("Kangkong (Water Spinach)", "Vegetables", "kg", 30),
+    ("Sitaw (String Beans)", "Vegetables", "kg", 70),
+    ("Chili (Labuyo)", "Vegetables", "kg", 250),
+    ("Chili (Siling Haba)", "Vegetables", "kg", 120),
+    ("Ginger (Luya)", "Vegetables", "kg", 120),
+    ("Potato", "Vegetables", "kg", 85),
+    ("Carrots", "Vegetables", "kg", 90),
+    ("Pechay (Bok Choy)", "Vegetables", "kg", 40),
+    ("Pechay Baguio (Wombok)", "Vegetables", "kg", 60),
+    ("Sayote (Chayote)", "Vegetables", "kg", 35),
+    ("Upo (Bottle Gourd)", "Vegetables", "kg", 30),
+    ("Patola (Sponge Gourd)", "Vegetables", "kg", 45),
+    ("Sweet Potato (Kamote)", "Vegetables", "kg", 40),
+    ("Togue (Mung Bean Sprouts)", "Vegetables", "kg", 35),
+    ("Malunggay (Moringa)", "Vegetables", "kg", 60),
+    ("Okra", "Vegetables", "kg", 65),
+    ("Green Beans (Habitchuelas)", "Vegetables", "kg", 75),
+    ("Lettuce (Iceberg)", "Vegetables", "kg", 120),
+    ("Lettuce (Romaine)", "Vegetables", "kg", 140),
+    ("Bell Pepper (Green)", "Vegetables", "kg", 100),
+    ("Bell Pepper (Red)", "Vegetables", "kg", 150),
+    ("Cucumber", "Vegetables", "kg", 40),
+    ("Radish (Labanos)", "Vegetables", "kg", 50),
+    ("Mushroom (Oyster)", "Vegetables", "kg", 160),
+    ("Mushroom (Button)", "Vegetables", "kg", 200),
+    ("Spring Onion", "Vegetables", "kg", 80),
+    ("Celery", "Vegetables", "kg", 120),
+    ("Broccoli", "Vegetables", "kg", 180),
+    ("Cauliflower", "Vegetables", "kg", 150),
+    ("Spinach", "Vegetables", "kg", 100),
+    ("Puso ng Saging (Banana Heart)", "Vegetables", "kg", 45),
+    ("Langka (Green Jackfruit)", "Vegetables", "kg", 60),
+    ("Talbos ng Sayote", "Vegetables", "kg", 50),
+    ("Saluyot (Jute Leaves)", "Vegetables", "kg", 55),
+    ("Alugbati (Malabar Spinach)", "Vegetables", "kg", 50),
+    ("Sigarilyas (Winged Bean)", "Vegetables", "kg", 80),
+
+    # ── Meat (20) ──
+    ("Pork Liempo", "Meat", "kg", 325),
+    ("Pork Kasim", "Meat", "kg", 280),
+    ("Pork Pata", "Meat", "kg", 230),
+    ("Pork Spare Ribs", "Meat", "kg", 290),
+    ("Pork Tenderloin", "Meat", "kg", 340),
+    ("Ground Pork", "Meat", "kg", 270),
+    ("Pork Chop", "Meat", "kg", 300),
+    ("Pork Belly (Skin-on)", "Meat", "kg", 310),
+    ("Whole Chicken", "Meat", "kg", 190),
+    ("Chicken Breast", "Meat", "kg", 210),
+    ("Chicken Thigh", "Meat", "kg", 185),
+    ("Chicken Wings", "Meat", "kg", 200),
+    ("Chicken Liver", "Meat", "kg", 160),
+    ("Chicken Gizzard", "Meat", "kg", 150),
+    ("Beef Brisket", "Meat", "kg", 380),
+    ("Beef Rump", "Meat", "kg", 400),
+    ("Beef Round", "Meat", "kg", 420),
+    ("Ground Beef", "Meat", "kg", 350),
+    ("Beef Shank (Bulalo)", "Meat", "kg", 360),
+    ("Goat Meat (Chevon)", "Meat", "kg", 400),
+
+    # ── Fish & Seafood (35) ──
+    ("Bangus (Milkfish)", "Fish & Seafood", "kg", 170),
+    ("Tilapia", "Fish & Seafood", "kg", 120),
+    ("Galunggong (Round Scad)", "Fish & Seafood", "kg", 160),
+    ("Alumahan (Long-jawed Mackerel)", "Fish & Seafood", "kg", 200),
+    ("Shrimp (Suahe)", "Fish & Seafood", "kg", 350),
+    ("Shrimp (Tiger Prawn)", "Fish & Seafood", "kg", 500),
+    ("Squid (Pusit)", "Fish & Seafood", "kg", 280),
+    ("Maya-Maya (Red Snapper)", "Fish & Seafood", "kg", 350),
+    ("Lapu-Lapu (Grouper)", "Fish & Seafood", "kg", 400),
+    ("Dilis (Anchovies)", "Fish & Seafood", "kg", 180),
+    ("Tulingan (Skipjack Tuna)", "Fish & Seafood", "kg", 200),
+    ("Tambakol (Yellowfin Tuna)", "Fish & Seafood", "kg", 250),
+    ("Tanigue (Spanish Mackerel)", "Fish & Seafood", "kg", 380),
+    ("Hasa-Hasa (Short Mackerel)", "Fish & Seafood", "kg", 140),
+    ("Espada (Swordfish)", "Fish & Seafood", "kg", 300),
+    ("Pampano (Pompano)", "Fish & Seafood", "kg", 350),
+    ("Bisugo (Threadfin Bream)", "Fish & Seafood", "kg", 220),
+    ("Crab (Alimasag)", "Fish & Seafood", "kg", 280),
+    ("Crab (Alimango)", "Fish & Seafood", "kg", 600),
+    ("Tahong (Green Mussel)", "Fish & Seafood", "kg", 120),
+    ("Talaba (Oyster)", "Fish & Seafood", "kg", 150),
+    ("Halaan (Clam)", "Fish & Seafood", "kg", 130),
+    ("Hipon (Small Shrimp)", "Fish & Seafood", "kg", 200),
+    ("Tuyo (Dried Herring)", "Fish & Seafood", "kg", 200),
+    ("Dried Dilis (Dried Anchovies)", "Fish & Seafood", "kg", 250),
+    ("Dried Pusit (Dried Squid)", "Fish & Seafood", "kg", 400),
+    ("Tinapa (Smoked Fish)", "Fish & Seafood", "kg", 180),
+    ("Sardines (Fresh)", "Fish & Seafood", "kg", 140),
+    ("Daing na Bangus", "Fish & Seafood", "kg", 220),
+    ("Danggit (Rabbitfish, Dried)", "Fish & Seafood", "kg", 600),
+    ("Sapsap (Ponyfish)", "Fish & Seafood", "kg", 120),
+    ("Salay-Salay (Yellowstriped Scad)", "Fish & Seafood", "kg", 160),
+    ("Tambakol Belly", "Fish & Seafood", "kg", 180),
+    ("Kitang (Spotted Herring)", "Fish & Seafood", "kg", 150),
+    ("Matambaka (Big-eye Scad)", "Fish & Seafood", "kg", 170),
+
+    # ── Fruits (28) ──
+    ("Banana (Lakatan)", "Fruits", "kg", 65),
+    ("Banana (Latundan)", "Fruits", "kg", 50),
+    ("Banana (Saba/Cooking)", "Fruits", "kg", 55),
+    ("Calamansi", "Fruits", "kg", 80),
+    ("Mango (Carabao)", "Fruits", "kg", 100),
+    ("Mango (Indian)", "Fruits", "kg", 80),
+    ("Papaya", "Fruits", "kg", 45),
+    ("Pineapple", "Fruits", "kg", 50),
+    ("Watermelon", "Fruits", "kg", 35),
+    ("Melon (Cantaloupe)", "Fruits", "kg", 60),
+    ("Apple (Fuji, Imported)", "Fruits", "kg", 150),
+    ("Apple (Green, Imported)", "Fruits", "kg", 160),
+    ("Orange (Imported)", "Fruits", "kg", 120),
+    ("Grapes (Red, Imported)", "Fruits", "kg", 200),
+    ("Grapes (Green, Imported)", "Fruits", "kg", 220),
+    ("Pear (Imported)", "Fruits", "kg", 140),
+    ("Lemon", "Fruits", "kg", 120),
+    ("Avocado", "Fruits", "kg", 100),
+    ("Guava (Bayabas)", "Fruits", "kg", 70),
+    ("Coconut (Buko)", "Fruits", "pc", 40),
+    ("Rambutan", "Fruits", "kg", 80),
+    ("Lanzones", "Fruits", "kg", 90),
+    ("Mangosteen", "Fruits", "kg", 120),
+    ("Durian", "Fruits", "kg", 150),
+    ("Jackfruit (Langka)", "Fruits", "kg", 70),
+    ("Dalandan (Native Orange)", "Fruits", "kg", 60),
+    ("Pomelo (Suha)", "Fruits", "kg", 80),
+    ("Atis (Sugar Apple)", "Fruits", "kg", 100),
+
+    # ── Poultry & Dairy (16) ──
+    ("Egg (Large)", "Poultry & Dairy", "pc", 8),
+    ("Egg (Medium)", "Poultry & Dairy", "pc", 7),
+    ("Egg (Small)", "Poultry & Dairy", "pc", 6),
+    ("Salted Egg (Itlog na Maalat)", "Poultry & Dairy", "pc", 12),
+    ("Quail Egg (Itlog ng Pugo)", "Poultry & Dairy", "pc", 2),
+    ("Fresh Milk (Full Cream)", "Poultry & Dairy", "L", 95),
+    ("Fresh Milk (Low Fat)", "Poultry & Dairy", "L", 90),
+    ("Evaporated Milk", "Poultry & Dairy", "can", 38),
+    ("Condensed Milk", "Poultry & Dairy", "can", 42),
+    ("Powdered Milk (Full Cream)", "Poultry & Dairy", "kg", 450),
+    ("Cheese (Eden)", "Poultry & Dairy", "pc", 45),
+    ("Cheese (Quickmelt)", "Poultry & Dairy", "kg", 280),
+    ("Butter (Salted)", "Poultry & Dairy", "kg", 500),
+    ("Margarine", "Poultry & Dairy", "kg", 180),
+    ("Yogurt (Plain)", "Poultry & Dairy", "cup", 60),
+    ("Kesong Puti (White Cheese)", "Poultry & Dairy", "pc", 50),
+
+    # ── Spices & Condiments (22) ──
+    ("Salt (Iodized)", "Spices & Condiments", "kg", 25),
+    ("Salt (Rock)", "Spices & Condiments", "kg", 20),
+    ("Black Pepper (Ground)", "Spices & Condiments", "kg", 600),
+    ("White Pepper (Ground)", "Spices & Condiments", "kg", 700),
+    ("Soy Sauce", "Spices & Condiments", "bottle", 30),
+    ("Vinegar (Cane)", "Spices & Condiments", "bottle", 25),
+    ("Vinegar (Coconut)", "Spices & Condiments", "bottle", 35),
+    ("Fish Sauce (Patis)", "Spices & Condiments", "bottle", 30),
+    ("Bagoong (Shrimp Paste)", "Spices & Condiments", "bottle", 80),
+    ("Bagoong (Alamang)", "Spices & Condiments", "bottle", 70),
+    ("Oyster Sauce", "Spices & Condiments", "bottle", 55),
+    ("Banana Ketchup", "Spices & Condiments", "bottle", 35),
+    ("Tomato Sauce", "Spices & Condiments", "bottle", 30),
+    ("Bay Leaf (Laurel)", "Spices & Condiments", "pack", 15),
+    ("Pandan Leaf", "Spices & Condiments", "bundle", 10),
+    ("Lemongrass (Tanglad)", "Spices & Condiments", "bundle", 15),
+    ("Turmeric (Luyang Dilaw)", "Spices & Condiments", "kg", 100),
+    ("Annatto Seeds (Atsuete)", "Spices & Condiments", "pack", 10),
+    ("Worcestershire Sauce", "Spices & Condiments", "bottle", 65),
+    ("Chili Flakes", "Spices & Condiments", "pack", 25),
+    ("Sesame Oil", "Spices & Condiments", "bottle", 85),
+    ("Coco Aminos", "Spices & Condiments", "bottle", 120),
+
+    # ── Canned & Processed (24) ──
+    ("Sardines (Canned)", "Canned & Processed", "can", 22),
+    ("Corned Beef (Canned)", "Canned & Processed", "can", 50),
+    ("Tuna Flakes (Canned)", "Canned & Processed", "can", 35),
+    ("Meat Loaf (Canned)", "Canned & Processed", "can", 40),
+    ("Luncheon Meat", "Canned & Processed", "can", 85),
+    ("Vienna Sausage", "Canned & Processed", "can", 30),
+    ("Hotdog (Regular)", "Canned & Processed", "kg", 160),
+    ("Hotdog (Jumbo)", "Canned & Processed", "kg", 200),
+    ("Tocino", "Canned & Processed", "kg", 260),
+    ("Longganisa", "Canned & Processed", "kg", 280),
+    ("Tapa", "Canned & Processed", "kg", 350),
+    ("Bacon", "Canned & Processed", "kg", 380),
+    ("Ham", "Canned & Processed", "kg", 300),
+    ("Bihon (Rice Noodles)", "Canned & Processed", "pack", 45),
+    ("Sotanghon (Glass Noodles)", "Canned & Processed", "pack", 55),
+    ("Canton Noodles", "Canned & Processed", "pack", 40),
+    ("Misua (Thin Wheat Noodles)", "Canned & Processed", "pack", 50),
+    ("Spaghetti Pasta", "Canned & Processed", "pack", 55),
+    ("Macaroni Pasta", "Canned & Processed", "pack", 55),
+    ("Instant Noodles", "Canned & Processed", "pack", 12),
+    ("Instant Coffee (3-in-1)", "Canned & Processed", "pack", 8),
+    ("Tablea (Chocolate)", "Canned & Processed", "pack", 60),
+    ("Peanut Butter", "Canned & Processed", "bottle", 80),
+    ("Dried Mango", "Canned & Processed", "pack", 120),
+
+    # ── Other Essentials (21) ──
+    ("Cooking Oil (Palm)", "Other Essentials", "L", 72),
+    ("Cooking Oil (Coconut)", "Other Essentials", "L", 85),
+    ("Cooking Oil (Canola)", "Other Essentials", "L", 120),
+    ("Cooking Oil (Vegetable)", "Other Essentials", "L", 75),
+    ("Refined Sugar", "Other Essentials", "kg", 75),
+    ("Brown Sugar", "Other Essentials", "kg", 65),
+    ("Muscovado Sugar", "Other Essentials", "kg", 80),
+    ("Coconut Milk (Gata)", "Other Essentials", "can", 40),
+    ("Coconut Cream", "Other Essentials", "can", 55),
+    ("All-Purpose Flour", "Other Essentials", "kg", 48),
+    ("Bread Flour", "Other Essentials", "kg", 52),
+    ("Cornstarch", "Other Essentials", "kg", 65),
+    ("Baking Powder", "Other Essentials", "can", 35),
+    ("Baking Soda", "Other Essentials", "pack", 15),
+    ("Tofu (Tokwa)", "Other Essentials", "pc", 15),
+    ("Pandesal", "Other Essentials", "pc", 3),
+    ("Lard (Mantika)", "Other Essentials", "kg", 80),
+    ("Cassava (Kamoteng Kahoy)", "Other Essentials", "kg", 40),
+    ("Desiccated Coconut", "Other Essentials", "kg", 160),
+    ("Achuete Oil", "Other Essentials", "bottle", 35),
+    ("Banana Chips", "Other Essentials", "pack", 60),
 ]
+
+# Derived structures -------------------------------------------------------
+SEED_COMMODITIES = [
+    {"name": name, "category": cat, "unit": unit, "image_url": None}
+    for name, cat, unit, _ in _RAW_COMMODITIES
+]
+
+BASE_PRICES: dict[str, Decimal] = {
+    name: Decimal(str(price)) for name, _, _, price in _RAW_COMMODITIES
+}
 
 # ---------------------------------------------------------------------------
 # One representative public market per region
@@ -123,56 +329,8 @@ SEED_MARKETS = [
 ]
 
 # ---------------------------------------------------------------------------
-# Base prevailing prices (PHP) and category-level volatility controls
+# Volatility & spread multipliers per category
 # ---------------------------------------------------------------------------
-BASE_PRICES: dict[str, Decimal] = {
-    # Rice
-    "Well-Milled Rice": Decimal("48.00"),
-    "Regular-Milled Rice": Decimal("42.00"),
-    "Premium Rice": Decimal("56.00"),
-    "Special Rice": Decimal("62.00"),
-    # Vegetables
-    "Red Onion": Decimal("130.00"),
-    "White Onion": Decimal("110.00"),
-    "Garlic (Imported)": Decimal("140.00"),
-    "Garlic (Local)": Decimal("200.00"),
-    "Tomato": Decimal("60.00"),
-    "Eggplant": Decimal("55.00"),
-    "Ampalaya": Decimal("80.00"),
-    "Squash": Decimal("35.00"),
-    "Cabbage": Decimal("50.00"),
-    "Kangkong": Decimal("30.00"),
-    "Sitaw": Decimal("70.00"),
-    "Chili (Labuyo)": Decimal("250.00"),
-    "Ginger": Decimal("120.00"),
-    "Potato": Decimal("85.00"),
-    "Carrots": Decimal("90.00"),
-    # Meat
-    "Pork Liempo": Decimal("325.00"),
-    "Pork Kasim": Decimal("280.00"),
-    "Whole Chicken": Decimal("190.00"),
-    "Chicken Breast": Decimal("210.00"),
-    "Beef Brisket": Decimal("380.00"),
-    "Beef Rump": Decimal("400.00"),
-    # Fish & Seafood
-    "Bangus": Decimal("170.00"),
-    "Tilapia": Decimal("120.00"),
-    "Galunggong": Decimal("160.00"),
-    "Alumahan": Decimal("200.00"),
-    "Shrimp (Suahe)": Decimal("350.00"),
-    # Fruits
-    "Banana (Lakatan)": Decimal("65.00"),
-    "Calamansi": Decimal("80.00"),
-    "Mango (Carabao)": Decimal("100.00"),
-    # Poultry & Dairy
-    "Egg (Large)": Decimal("8.00"),
-    # Other Essentials
-    "Refined Sugar": Decimal("75.00"),
-    "Brown Sugar": Decimal("65.00"),
-    "Cooking Oil (Palm)": Decimal("72.00"),
-}
-
-# Volatility & spread multipliers per category (higher = more day-to-day swing)
 _CATEGORY_VOLATILITY: dict[str, float] = {
     "Rice": 0.006,
     "Vegetables": 0.025,
@@ -180,10 +338,11 @@ _CATEGORY_VOLATILITY: dict[str, float] = {
     "Fish & Seafood": 0.020,
     "Fruits": 0.018,
     "Poultry & Dairy": 0.010,
+    "Spices & Condiments": 0.007,
+    "Canned & Processed": 0.005,
     "Other Essentials": 0.007,
 }
 
-# High-low spread as fraction of prevailing price per category
 _CATEGORY_SPREAD: dict[str, Decimal] = {
     "Rice": Decimal("0.04"),
     "Vegetables": Decimal("0.08"),
@@ -191,11 +350,12 @@ _CATEGORY_SPREAD: dict[str, Decimal] = {
     "Fish & Seafood": Decimal("0.06"),
     "Fruits": Decimal("0.07"),
     "Poultry & Dairy": Decimal("0.04"),
+    "Spices & Condiments": Decimal("0.03"),
+    "Canned & Processed": Decimal("0.02"),
     "Other Essentials": Decimal("0.03"),
 }
 
 # Regional price adjustments (percentage of base price)
-# Positive = more expensive, negative = cheaper
 _REGION_PCT: dict[str, float] = {
     "NCR": 0.06,
     "CAR": -0.02,
@@ -220,11 +380,7 @@ HISTORY_DAYS = 90
 
 
 def _deterministic_noise(seed_str: str, day: int) -> float:
-    """Return a deterministic float in [-1, 1] for reproducible price curves.
-
-    Uses an MD5 hash so the generated series is identical across restarts
-    while still looking natural.
-    """
+    """Return a deterministic float in [-1, 1] for reproducible price curves."""
     raw = hashlib.md5(f"{seed_str}:{day}".encode()).hexdigest()  # noqa: S324
     return (int(raw[:8], 16) / 0xFFFFFFFF) * 2 - 1
 
@@ -281,6 +437,8 @@ async def seed_reference_data(session: AsyncSession) -> None:
         markets = list(market_rows.scalars().all())
 
         start_date = datetime.now(UTC).date() - timedelta(days=HISTORY_DAYS - 1)
+
+        # Build all records in memory, then bulk-insert
         records: list[DailyPrice] = []
 
         for market in markets:
@@ -295,50 +453,34 @@ async def seed_reference_data(session: AsyncSession) -> None:
                 if commodity is None:
                     continue
 
-                # Lookup category properties
                 cat = commodity.category
                 volatility = _CATEGORY_VOLATILITY.get(cat, 0.01)
                 spread_pct = _CATEGORY_SPREAD.get(cat, Decimal("0.05"))
-
-                # Regional adjustment (absolute)
                 regional_base = base_price * (1 + Decimal(str(region_pct)))
-
-                # Deterministic seed for this pair
                 pair_seed = f"{region.code}:{commodity_name}"
 
                 for day_offset in range(HISTORY_DAYS):
                     current_date = start_date + timedelta(days=day_offset)
-
-                    # Gentle upward trend (~0.04% per day ≈ 3.6% over 90 days)
                     trend_factor = Decimal(str(1 + day_offset * 0.0004))
-
-                    # Weekly seasonality (weekend dip, midweek peak)
                     weekday = current_date.weekday()
                     weekly_wave = Decimal(str(math.sin(2 * math.pi * weekday / 7) * volatility * 1.5))
-
-                    # Deterministic random noise
                     noise_val = _deterministic_noise(pair_seed, day_offset)
                     noise = Decimal(str(noise_val * volatility))
 
                     prevailing = (regional_base * trend_factor * (1 + weekly_wave + noise)).quantize(Decimal("0.01"))
-
-                    # Ensure minimum price
                     if prevailing < Decimal("1.00"):
                         prevailing = Decimal("1.00")
 
                     half_spread = (prevailing * spread_pct / 2).quantize(Decimal("0.01"))
-                    price_low = prevailing - half_spread
-                    price_high = prevailing + half_spread
-                    price_avg = prevailing
 
                     records.append(
                         DailyPrice(
                             commodity_id=commodity.id,
                             market_id=market.id,
                             region_id=region.id,
-                            price_low=price_low,
-                            price_high=price_high,
-                            price_avg=price_avg,
+                            price_low=prevailing - half_spread,
+                            price_high=prevailing + half_spread,
+                            price_avg=prevailing,
                             price_prevailing=prevailing,
                             date=current_date,
                             source="DA-BPI",
@@ -346,7 +488,7 @@ async def seed_reference_data(session: AsyncSession) -> None:
                     )
 
         # Bulk-insert in batches to avoid memory pressure
-        batch_size = 5000
+        batch_size = 10000
         for i in range(0, len(records), batch_size):
             session.add_all(records[i : i + batch_size])
             await session.flush()

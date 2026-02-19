@@ -281,7 +281,9 @@ main {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
 }
 
 .card-header-icon {
@@ -656,13 +658,21 @@ main {
 }
 
 /* ══════════════════════════════════════════════════════
-   TOOLBAR (Category filter + search)
+   TOOLBAR (Category filter + search + region filter)
    ══════════════════════════════════════════════════════ */
 .toolbar {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   margin-bottom: 1rem;
+}
+
+/* ── Filter row (search + region + export buttons) ── */
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 /* ── Category Filter ── */
@@ -735,6 +745,63 @@ main {
 
 .search-input::placeholder {
   color: var(--muted);
+}
+
+/* ── Region / select dropdown ── */
+.select-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  position: relative;
+  min-width: 180px;
+}
+
+.select-wrap:focus-within {
+  border-color: var(--agri-blue);
+  box-shadow: 0 0 0 3px var(--agri-blue-light);
+}
+
+.select-wrap svg:first-child {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.select-chevron {
+  color: var(--muted);
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.filter-select {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.88rem;
+  color: var(--text);
+  font-family: inherit;
+  cursor: pointer;
+  flex: 1;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding-right: 0.25rem;
+}
+
+/* ── Loading indicator ── */
+.loading-indicator {
+  color: var(--agri-blue);
+  font-weight: 600;
+  animation: pulse-opacity 1s ease-in-out infinite;
+}
+
+@keyframes pulse-opacity {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 
 /* ── Results summary ── */
@@ -1140,6 +1207,15 @@ main {
 
 [data-theme="dark"] .chip-link:hover {
   background: #1e3a5f;
+}
+
+[data-theme="dark"] .filter-select {
+  color: var(--text);
+}
+
+[data-theme="dark"] .filter-select option {
+  background: var(--card);
+  color: var(--text);
 }
 
 [data-theme="dark"] .skeleton,

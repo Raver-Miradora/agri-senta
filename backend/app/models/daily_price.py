@@ -1,7 +1,7 @@
 from datetime import date as dt_date
 from decimal import Decimal
 
-from sqlalchemy import Date, ForeignKey, Numeric, String, UniqueConstraint
+from sqlalchemy import Date, ForeignKey, Index, Numeric, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base, TimestampMixin
@@ -17,6 +17,7 @@ class DailyPrice(TimestampMixin, Base):
             "source",
             name="uq_daily_prices_commodity_market_date_source",
         ),
+        Index("ix_daily_prices_date_commodity_region", "date", "commodity_id", "region_id"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)

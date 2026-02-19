@@ -45,15 +45,17 @@ async def test_latest_prices_returns_200(client):
 async def test_latest_prices_has_category(client):
     resp = await client.get("/api/v1/prices/latest")
     data = resp.json()
-    assert len(data) > 0
-    assert "commodity_category" in data[0]
+    assert "items" in data
+    assert "total" in data
+    assert len(data["items"]) > 0
+    assert "commodity_category" in data["items"][0]
 
 
 async def test_latest_prices_fields(client):
     resp = await client.get("/api/v1/prices/latest")
     data = resp.json()
-    if data:
-        item = data[0]
+    if data["items"]:
+        item = data["items"][0]
         for field in ("commodity_id", "commodity_name", "region_id", "region_code", "date", "avg_price"):
             assert field in item, f"Missing field: {field}"
 
