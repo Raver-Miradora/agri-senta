@@ -2,11 +2,11 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Calendar, TrendingUp, BarChart3, Search, Download } from "lucide-react";
+import { Calendar, TrendingUp, BarChart3, Search, Download, FileText } from "lucide-react";
 import Pagination from "@/components/Pagination";
 import CategoryFilter from "@/components/CategoryFilter";
 import { LatestPrice, formatPeso } from "@/lib/api";
-import { downloadCSV } from "@/lib/export";
+import { downloadCSV, downloadPDF } from "@/lib/export";
 
 type PricesTableProps = {
   data: LatestPrice[];
@@ -54,18 +54,20 @@ export default function PricesTable({ data }: PricesTableProps) {
     setPage(1);
   };
 
+  const priceColumns = [
+    { key: "commodity_name" as const, label: "Commodity" },
+    { key: "commodity_category" as const, label: "Category" },
+    { key: "region_code" as const, label: "Region" },
+    { key: "date" as const, label: "Date" },
+    { key: "avg_price" as const, label: "Average Price" },
+  ];
+
   const handleExportCSV = () => {
-    downloadCSV(
-      filtered,
-      [
-        { key: "commodity_name", label: "Commodity" },
-        { key: "commodity_category", label: "Category" },
-        { key: "region_code", label: "Region" },
-        { key: "date", label: "Date" },
-        { key: "avg_price", label: "Average Price" },
-      ],
-      "agri-senta-prices.csv"
-    );
+    downloadCSV(filtered, priceColumns, "agri-senta-prices.csv");
+  };
+
+  const handleExportPDF = () => {
+    downloadPDF(filtered, priceColumns, "agri-senta-prices.pdf", "Agri-Senta — Market Prices");
   };
 
   return (
@@ -86,7 +88,11 @@ export default function PricesTable({ data }: PricesTableProps) {
         </div>
         <button className="chip-link" onClick={handleExportCSV} title="Export filtered data as CSV">
           <Download size={14} />
-          Export CSV
+          CSV
+        </button>
+        <button className="chip-link" onClick={handleExportPDF} title="Export filtered data as PDF">
+          <FileText size={14} />
+          PDF
         </button>
       </div>
 

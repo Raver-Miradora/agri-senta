@@ -2,11 +2,11 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { ArrowRight, Calendar, Search, Download } from "lucide-react";
+import { ArrowRight, Calendar, Search, Download, FileText } from "lucide-react";
 import Pagination from "@/components/Pagination";
 import CategoryFilter from "@/components/CategoryFilter";
 import { ForecastSummary, formatPeso } from "@/lib/api";
-import { downloadCSV } from "@/lib/export";
+import { downloadCSV, downloadPDF } from "@/lib/export";
 
 type ForecastTableProps = {
   data: ForecastSummary[];
@@ -53,19 +53,21 @@ export default function ForecastTable({ data }: ForecastTableProps) {
     setPage(1);
   };
 
+  const forecastColumns = [
+    { key: "commodity_name" as const, label: "Commodity" },
+    { key: "commodity_category" as const, label: "Category" },
+    { key: "region_code" as const, label: "Region" },
+    { key: "forecast_date" as const, label: "Forecast Date" },
+    { key: "predicted_price" as const, label: "Predicted Price" },
+    { key: "model_used" as const, label: "Model" },
+  ];
+
   const handleExportCSV = () => {
-    downloadCSV(
-      filtered,
-      [
-        { key: "commodity_name", label: "Commodity" },
-        { key: "commodity_category", label: "Category" },
-        { key: "region_code", label: "Region" },
-        { key: "forecast_date", label: "Forecast Date" },
-        { key: "predicted_price", label: "Predicted Price" },
-        { key: "model_used", label: "Model" },
-      ],
-      "agri-senta-forecasts.csv"
-    );
+    downloadCSV(filtered, forecastColumns, "agri-senta-forecasts.csv");
+  };
+
+  const handleExportPDF = () => {
+    downloadPDF(filtered, forecastColumns, "agri-senta-forecasts.pdf", "Agri-Senta — Forecast Results");
   };
 
   return (
@@ -85,7 +87,11 @@ export default function ForecastTable({ data }: ForecastTableProps) {
         </div>
         <button className="chip-link" onClick={handleExportCSV} title="Export filtered data as CSV">
           <Download size={14} />
-          Export CSV
+          CSV
+        </button>
+        <button className="chip-link" onClick={handleExportPDF} title="Export filtered data as PDF">
+          <FileText size={14} />
+          PDF
         </button>
       </div>
 
