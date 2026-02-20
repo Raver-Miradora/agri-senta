@@ -6,7 +6,7 @@ from app.database import get_db_session
 from app.models import Region
 from app.schemas import RegionResponse
 
-router = APIRouter(prefix="/regions", tags=["Regions"])
+router = APIRouter(prefix="/regions", tags=["Barangays"])
 
 
 @router.get("", response_model=list[RegionResponse])

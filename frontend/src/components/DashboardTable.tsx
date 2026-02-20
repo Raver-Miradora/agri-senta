@@ -108,9 +108,9 @@ export default function DashboardTable({ regions, categories, initialData }: Das
               value={regionId ?? ""}
               onChange={handleRegionChange}
               className="filter-select"
-              aria-label="Filter by region"
+              aria-label="Filter by barangay"
             >
-              <option value="">All Regions</option>
+              <option value="">All Barangays</option>
               {regions.map((r) => (
                 <option key={r.id} value={r.id}>{r.code} — {r.name}</option>
               ))}
@@ -138,7 +138,7 @@ export default function DashboardTable({ regions, categories, initialData }: Das
               <tr>
                 <th className="text-left">Commodity</th>
                 <th className="text-left">Category</th>
-                <th className="text-left">Region</th>
+                <th className="text-left">Barangay</th>
                 <th className="text-right">Average Price</th>
                 <th className="text-center">Actions</th>
               </tr>

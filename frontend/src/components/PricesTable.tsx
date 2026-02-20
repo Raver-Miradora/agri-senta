@@ -86,7 +86,7 @@ export default function PricesTable({ regions, categories, initialData }: Prices
   const priceColumns = [
     { key: "commodity_name" as const, label: "Commodity" },
     { key: "commodity_category" as const, label: "Category" },
-    { key: "region_code" as const, label: "Region" },
+    { key: "region_code" as const, label: "Barangay" },
     { key: "date" as const, label: "Date" },
     { key: "avg_price" as const, label: "Average Price" },
   ];
@@ -110,7 +110,7 @@ export default function PricesTable({ regions, categories, initialData }: Prices
             <Search size={16} />
             <input
               type="text"
-              placeholder="Search commodity or region…"
+              placeholder="Search commodity or barangay…"
               value={search}
               onChange={(e) => handleSearchChange(e.target.value)}
               className="search-input"
@@ -124,9 +124,9 @@ export default function PricesTable({ regions, categories, initialData }: Prices
               value={regionId ?? ""}
               onChange={handleRegionChange}
               className="filter-select"
-              aria-label="Filter by region"
+              aria-label="Filter by barangay"
             >
-              <option value="">All Regions</option>
+              <option value="">All Barangays</option>
               {regions.map((r) => (
                 <option key={r.id} value={r.id}>{r.code} — {r.name}</option>
               ))}
@@ -163,7 +163,7 @@ export default function PricesTable({ regions, categories, initialData }: Prices
               <tr>
                 <th className="text-left">Commodity</th>
                 <th className="text-left">Category</th>
-                <th className="text-left">Region</th>
+                <th className="text-left">Barangay</th>
                 <th className="text-left">Date</th>
                 <th className="text-right">Avg Price</th>
                 <th className="text-center">Actions</th>

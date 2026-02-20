@@ -56,7 +56,7 @@ export default function ForecastTable({ data }: ForecastTableProps) {
   const forecastColumns = [
     { key: "commodity_name" as const, label: "Commodity" },
     { key: "commodity_category" as const, label: "Category" },
-    { key: "region_code" as const, label: "Region" },
+    { key: "region_code" as const, label: "Barangay" },
     { key: "forecast_date" as const, label: "Forecast Date" },
     { key: "predicted_price" as const, label: "Predicted Price" },
     { key: "model_used" as const, label: "Model" },
@@ -78,7 +78,7 @@ export default function ForecastTable({ data }: ForecastTableProps) {
           <Search size={16} />
           <input
             type="text"
-            placeholder="Search commodity or region…"
+            placeholder="Search commodity or barangay…"
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
             className="search-input"
@@ -115,7 +115,7 @@ export default function ForecastTable({ data }: ForecastTableProps) {
               <tr>
                 <th className="text-left">Commodity</th>
                 <th className="text-left">Category</th>
-                <th className="text-left">Region</th>
+                <th className="text-left">Barangay</th>
                 <th className="text-left">Forecast Date</th>
                 <th className="text-right">Predicted Price</th>
                 <th className="text-center">Model</th>

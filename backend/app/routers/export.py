@@ -41,8 +41,8 @@ def _csv_streaming_response(rows: list[dict], filename: str) -> StreamingRespons
 async def export_prices_csv(
     db: AsyncSession = Depends(get_db_session),
 ) -> StreamingResponse:
-    rows = await get_latest_prices(db)
-    data = [dict(row) for row in rows]
+    items, _total = await get_latest_prices(db, limit=100_000, offset=0)
+    data = [dict(row) if not isinstance(row, dict) else row for row in items]
     return _csv_streaming_response(data, "agrisenta-prices.csv")
 
 
@@ -51,5 +51,5 @@ async def export_forecasts_csv(
     db: AsyncSession = Depends(get_db_session),
 ) -> StreamingResponse:
     rows = await get_forecast_summary(db)
-    data = [dict(row) for row in rows]
+    data = [dict(row) if not isinstance(row, dict) else row for row in rows]
     return _csv_streaming_response(data, "agrisenta-forecasts.csv")

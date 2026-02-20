@@ -6,7 +6,7 @@ import { RegionalComparison, fetchFromApiOrDefault, formatPeso } from "@/lib/api
 
 export default async function ComparePage() {
   const rows = await fetchFromApiOrDefault<RegionalComparison[]>("/analytics/regional-comparison", []);
-  const chartData = rows.map((row) => ({ region: row.region_code, avg_price: Number(row.avg_price) }));
+  const chartData = rows.map((row) => ({ barangay: row.region_code, avg_price: Number(row.avg_price) }));
 
   return (
     <section className="page">
@@ -16,8 +16,8 @@ export default async function ComparePage() {
             <GitCompareArrows size={22} />
           </div>
           <div>
-            <h1>Regional Comparison</h1>
-            <p className="subtitle">Average prevailing prices by region (all commodities combined).</p>
+            <h1>Barangay Comparison</h1>
+            <p className="subtitle">Average prevailing prices by barangay (all commodities combined).</p>
           </div>
         </div>
       </div>
@@ -27,10 +27,10 @@ export default async function ComparePage() {
           <div className="card-header-icon page-icon-blue">
             <BarChart3 size={18} />
           </div>
-          <h3 className="section-title">Price Distribution by Region</h3>
+          <h3 className="section-title">Price Distribution by Barangay</h3>
         </div>
         <div className="chart-container">
-          <SimpleBarChart data={chartData} xKey="region" yKey="avg_price" />
+          <SimpleBarChart data={chartData} xKey="barangay" yKey="avg_price" />
         </div>
       </div>
 
@@ -40,15 +40,15 @@ export default async function ComparePage() {
             <MapPin size={18} />
           </div>
           <div>
-            <h3 className="section-title">Regional Breakdown</h3>
-            <p className="section-subtitle">{rows.length} regions compared</p>
+            <h3 className="section-title">Barangay Breakdown</h3>
+            <p className="section-subtitle">{rows.length} barangays compared</p>
           </div>
         </div>
         <div className="table-wrap">
           <table className="data-table">
             <thead>
               <tr>
-                <th className="text-left">Region</th>
+                <th className="text-left">Barangay</th>
                 <th className="text-left">Code</th>
                 <th className="text-right">Avg Price</th>
               </tr>

@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     secret_key: str = "dev-secret-change-in-production"
     access_token_expire_minutes: int = 60
     default_admin_username: str = "admin"
-    default_admin_password: str = "admin123"
+    default_admin_password: str = "M@0Lag0noy_2025!"
 
     # Rate limiting
     rate_limit_default: str = "60/minute"

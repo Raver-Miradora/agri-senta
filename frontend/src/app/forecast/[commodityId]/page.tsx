@@ -77,7 +77,7 @@ export default async function ForecastCommodityPage({ params }: ForecastCommodit
             <thead>
               <tr>
                 <th className="text-left">Date</th>
-                <th className="text-left">Region</th>
+                <th className="text-left">Barangay</th>
                 <th className="text-right">Predicted</th>
                 <th className="text-right">Lower</th>
                 <th className="text-right">Upper</th>

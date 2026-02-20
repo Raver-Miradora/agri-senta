@@ -36,7 +36,7 @@ export default function SpikesTable({ data, commodityNames, regionCodes }: Spike
               <tr>
                 <th className="text-left">Date</th>
                 <th className="text-left">Commodity</th>
-                <th className="text-left">Region</th>
+                <th className="text-left">Barangay</th>
                 <th className="text-right">Avg Price</th>
               </tr>
             </thead>
