@@ -17,7 +17,7 @@ export default async function ForecastPage() {
           <div>
             <h1>Forecast</h1>
             <p className="subtitle">
-              ML-generated price predictions per commodity-region pair.
+              ML-generated price predictions per commodity-barangay pair.
               Filter by category to find specific forecasts quickly.
             </p>
           </div>

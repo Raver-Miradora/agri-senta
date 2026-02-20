@@ -189,6 +189,77 @@ export type ForecastSummary = {
   model_used: string;
 };
 
+/* ── New Lagonoy MAO types ── */
+
+export type Market = {
+  id: number;
+  name: string;
+  location: string | null;
+};
+
+export type PriceBoardItem = {
+  commodity_id: number;
+  commodity_name: string;
+  unit: string;
+  avg_price: number;
+  prev_price: number | null;
+  change_percent: number | null;
+};
+
+export type PriceBoardCategory = {
+  category: string;
+  items: PriceBoardItem[];
+};
+
+export type VendorItem = {
+  id: number;
+  name: string;
+  stall_number: string | null;
+  market_id: number | null;
+  market_name: string | null;
+  commodity_type: string | null;
+  contact_number: string | null;
+  is_active: boolean;
+};
+
+export type HarvestItem = {
+  id: number;
+  region_id: number;
+  region_name: string;
+  commodity_id: number;
+  commodity_name: string;
+  quantity_kg: number;
+  area_hectares: number | null;
+  season: string | null;
+  harvest_date: string;
+  farmer_name: string | null;
+  notes: string | null;
+};
+
+export type HarvestSummary = {
+  commodity_id: number;
+  commodity_name: string;
+  season: string | null;
+  total_kg: number;
+  total_hectares: number | null;
+  record_count: number;
+};
+
+export type PriceAlertItem = {
+  id: number;
+  commodity_id: number;
+  commodity_name: string;
+  region_id: number | null;
+  region_name: string | null;
+  alert_type: string;
+  severity: string;
+  current_price: number;
+  threshold_price: number | null;
+  message: string | null;
+  triggered_at: string;
+  is_resolved: boolean;
+};
+
 export function formatPeso(value: number): string {
   return new Intl.NumberFormat("en-PH", {
     style: "currency",

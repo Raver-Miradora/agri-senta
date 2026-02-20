@@ -6,7 +6,6 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Tags,
-  GitCompareArrows,
   TrendingUp,
   BarChart3,
   Info,
@@ -18,14 +17,20 @@ import {
   LogOut,
   Sun,
   Moon,
+  Store,
+  ShieldAlert,
+  Megaphone,
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { useTheme } from "@/lib/ThemeContext";
 
 const NAV_ITEMS = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/price-board", label: "Price Board", icon: Megaphone },
   { href: "/prices", label: "Prices", icon: Tags },
-  { href: "/compare", label: "Compare", icon: GitCompareArrows },
+  { href: "/harvests", label: "Harvests", icon: Wheat },
+  { href: "/vendors", label: "Vendors", icon: Store },
+  { href: "/alerts", label: "Alerts", icon: ShieldAlert },
   { href: "/forecast", label: "Forecast", icon: TrendingUp },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/about", label: "About", icon: Info },
@@ -54,7 +59,7 @@ export default function Navbar() {
           <span>
             <span className="nav-brand-text">Agri-Senta</span>
             <br />
-            <span className="nav-brand-sub">Smart Palengke</span>
+            <span className="nav-brand-sub">Lagonoy MAO</span>
           </span>
         </Link>
 

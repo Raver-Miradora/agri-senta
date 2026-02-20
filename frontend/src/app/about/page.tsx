@@ -7,6 +7,8 @@ import {
   Globe,
   ShieldCheck,
   Clock,
+  MapPin,
+  Fish,
 } from "lucide-react";
 
 export default function AboutPage() {
@@ -20,8 +22,8 @@ export default function AboutPage() {
           <div>
             <h1>About Agri-Senta</h1>
             <p className="subtitle">
-              A Smart Palengke Dashboard for tracking, comparing, and forecasting commodity prices
-              across Philippine regions.
+              A Smart Agricultural Price Tracker &amp; Dashboard for the Municipal Agriculture
+              Office of Lagonoy, Camarines Sur.
             </p>
           </div>
         </div>
@@ -31,17 +33,17 @@ export default function AboutPage() {
       <div className="grid">
         <div className="feature-card">
           <div className="feature-icon feature-icon-blue">
-            <Database size={24} />
+            <MapPin size={24} />
           </div>
-          <h3>Data Sources</h3>
-          <p>DA Price Watch &bull; PSA OpenSTAT</p>
+          <h3>Lagonoy, Camarines Sur</h3>
+          <p>30 barangays &bull; Lagonoy Gulf &bull; Bicol Region</p>
         </div>
         <div className="feature-card">
           <div className="feature-icon feature-icon-red">
             <Brain size={24} />
           </div>
-          <h3>ML Models</h3>
-          <p>Linear Regression &bull; ARIMA</p>
+          <h3>ML Forecasting</h3>
+          <p>Linear Regression &bull; ARIMA models</p>
         </div>
         <div className="feature-card">
           <div className="feature-icon feature-icon-yellow">
@@ -61,10 +63,12 @@ export default function AboutPage() {
           <h3 className="section-title">How it works</h3>
         </div>
         <p style={{ color: "var(--muted)", lineHeight: 1.7 }}>
-          Agri-Senta automatically scrapes official government price data daily, cleans and stores
-          it in PostgreSQL, then uses machine-learning models to generate 7-day commodity price
-          forecasts. The dashboard gives consumers and small food businesses actionable pricing
-          intelligence at a glance.
+          Agri-Senta is a data-driven web application built for the Municipal Agriculture Office
+          of Lagonoy. It allows the LGU to broadcast daily commodity prices to local farmers,
+          track seasonal harvest yields across barangays, and help prevent price manipulation
+          in the Lagonoy Public Market. The system uses machine-learning models to generate
+          7-day price forecasts with confidence intervals, giving actionable pricing intelligence
+          to farmers and market administrators alike.
         </p>
       </div>
 
@@ -80,36 +84,36 @@ export default function AboutPage() {
           <div style={{ display: "flex", gap: "0.75rem" }}>
             <div className="status-dot" style={{ background: "var(--agri-blue)" }} />
             <div>
-              <strong>Real-time Scraping</strong>
+              <strong>Daily Price Broadcasting</strong>
               <p style={{ color: "var(--muted)", fontSize: "0.85rem", margin: "0.25rem 0 0" }}>
-                Automated daily data collection from government sources
+                Public price board for farmers and consumers to view today&apos;s market prices
               </p>
             </div>
           </div>
           <div style={{ display: "flex", gap: "0.75rem" }}>
             <div className="status-dot" style={{ background: "var(--agri-red)" }} />
             <div>
-              <strong>Spike Detection</strong>
+              <strong>Price Manipulation Detection</strong>
               <p style={{ color: "var(--muted)", fontSize: "0.85rem", margin: "0.25rem 0 0" }}>
-                Automatic alerts when prices deviate significantly
+                Automatic alerts when prices deviate beyond normal thresholds
               </p>
             </div>
           </div>
           <div style={{ display: "flex", gap: "0.75rem" }}>
             <div className="status-dot" style={{ background: "var(--agri-yellow)" }} />
             <div>
-              <strong>7-Day Forecasts</strong>
+              <strong>Harvest Yield Tracking</strong>
               <p style={{ color: "var(--muted)", fontSize: "0.85rem", margin: "0.25rem 0 0" }}>
-                ML-powered predictions with confidence intervals
+                Record and analyse crop yields per barangay and growing season
               </p>
             </div>
           </div>
           <div style={{ display: "flex", gap: "0.75rem" }}>
             <div className="status-dot" style={{ background: "#10b981" }} />
             <div>
-              <strong>Regional Coverage</strong>
+              <strong>7-Day Price Forecasts</strong>
               <p style={{ color: "var(--muted)", fontSize: "0.85rem", margin: "0.25rem 0 0" }}>
-                Price tracking across all Philippine regions
+                ML-powered predictions with confidence intervals for all commodities
               </p>
             </div>
           </div>

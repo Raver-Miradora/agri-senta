@@ -11,9 +11,9 @@
 
 /* ── Tokens ── */
 :root {
-  --agri-blue: #0038a8;
-  --agri-blue-light: #e8f0fe;
-  --agri-blue-hover: #002d8a;
+  --agri-blue: #166534;
+  --agri-blue-light: #dcfce7;
+  --agri-blue-hover: #14532d;
   --agri-red: #ce1126;
   --agri-red-light: #fce8eb;
   --agri-yellow: #fcd116;
@@ -98,7 +98,7 @@ svg {
 .nav-logo {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, var(--agri-blue), #1d5dcc);
+  background: linear-gradient(135deg, var(--agri-blue), #22c55e);
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
@@ -613,6 +613,44 @@ main {
   border-color: var(--agri-blue);
   transform: translateY(-1px);
 }
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--muted);
+  transition: all var(--transition);
+}
+
+.btn-icon:hover {
+  background: var(--agri-red-light);
+  color: var(--agri-red);
+}
+
+.btn-primary {
+  background: var(--agri-blue);
+  color: #fff;
+}
+
+/* Spin animation for loaders */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+/* ── Trend indicators ── */
+.trend-up { color: var(--agri-red); }
+.trend-down { color: var(--agri-green); }
+.trend-neutral { color: var(--muted); }
 
 /* ══════════════════════════════════════════════════════
    EMPTY STATE

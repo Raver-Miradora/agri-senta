@@ -28,8 +28,8 @@ export default async function PricesPage() {
           <div>
             <h1>Price Explorer</h1>
             <p className="subtitle">
-              Browse current market prices by commodity and region.
-              Use search, category filter, or region dropdown to narrow results.
+              Browse current market prices by commodity and barangay.
+              Use search, category filter, or barangay dropdown to narrow results.
             </p>
           </div>
         </div>
@@ -42,7 +42,7 @@ export default async function PricesPage() {
           </div>
           <div>
             <h3 className="section-title">Latest Market Prices</h3>
-            <p className="section-subtitle">{initialPrices.total} price records across all regions</p>
+            <p className="section-subtitle">{initialPrices.total} price records across all barangays</p>
           </div>
         </div>
 

@@ -7,9 +7,9 @@ import { ThemeProvider } from "@/lib/ThemeContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Agri-Senta — Smart Palengke Dashboard",
+  title: "Agri-Senta — Lagonoy Smart Agricultural Price Tracker",
   description:
-    "Track, compare, and forecast commodity prices across Philippine regions.",
+    "Smart agricultural price tracker & dashboard for the Municipal Agriculture Office of Lagonoy, Camarines Sur.",
 };
 
 export default function RootLayout({
@@ -26,22 +26,16 @@ export default function RootLayout({
           <main>{children}</main>
           <footer className="footer">
           <div className="footer-inner">
-            <span>&copy; {new Date().getFullYear()} Agri-Senta &mdash; Smart Palengke Dashboard</span>
+            <span>&copy; {new Date().getFullYear()} Agri-Senta &mdash; Municipal Agriculture Office, Lagonoy</span>
             <div className="footer-links">
               <Link href="/about">About</Link>
+              <Link href="/price-board">Price Board</Link>
               <a
                 href="https://www.da.gov.ph/price-monitoring/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 DA Price Watch
-              </a>
-              <a
-                href="https://openstat.psa.gov.ph/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                PSA OpenSTAT
               </a>
             </div>
           </div>

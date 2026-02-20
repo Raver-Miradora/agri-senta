@@ -1,8 +1,8 @@
-"""Seed data for Agri-Senta: 17 Philippine regions, 210+ commodities, 17 markets.
+"""Seed data for Agri-Senta: Lagonoy Municipal Agriculture Office.
 
-Generates 90 days of realistic daily price history for every
-commodity-region pair with category-specific volatility, seasonal
-patterns, and regional price differentials.
+Lagonoy is a coastal municipality in Camarines Sur (Bicol Region) facing
+Lagonoy Gulf.  This seeds barangays as "regions", local commodities,
+local markets, and 90 days of realistic daily price history.
 """
 
 import hashlib
@@ -16,273 +16,151 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import Commodity, DailyPrice, Market, Region
 
 # ---------------------------------------------------------------------------
-# All 17 Philippine administrative regions
+# Barangays of Lagonoy, Camarines Sur  (stored in the Region table)
+#   code  → short barangay code
+#   island_group → repurposed as "zone" (Poblacion / Coastal / Upland / Agricultural)
 # ---------------------------------------------------------------------------
 SEED_REGIONS = [
-    {"name": "National Capital Region", "code": "NCR", "island_group": "Luzon"},
-    {"name": "Cordillera Administrative Region", "code": "CAR", "island_group": "Luzon"},
-    {"name": "Ilocos Region", "code": "R01", "island_group": "Luzon"},
-    {"name": "Cagayan Valley", "code": "R02", "island_group": "Luzon"},
-    {"name": "Central Luzon", "code": "R03", "island_group": "Luzon"},
-    {"name": "CALABARZON", "code": "R04A", "island_group": "Luzon"},
-    {"name": "MIMAROPA", "code": "R04B", "island_group": "Luzon"},
-    {"name": "Bicol Region", "code": "R05", "island_group": "Luzon"},
-    {"name": "Western Visayas", "code": "R06", "island_group": "Visayas"},
-    {"name": "Central Visayas", "code": "R07", "island_group": "Visayas"},
-    {"name": "Eastern Visayas", "code": "R08", "island_group": "Visayas"},
-    {"name": "Zamboanga Peninsula", "code": "R09", "island_group": "Mindanao"},
-    {"name": "Northern Mindanao", "code": "R10", "island_group": "Mindanao"},
-    {"name": "Davao Region", "code": "R11", "island_group": "Mindanao"},
-    {"name": "SOCCSKSARGEN", "code": "R12", "island_group": "Mindanao"},
-    {"name": "Caraga", "code": "R13", "island_group": "Mindanao"},
-    {"name": "Bangsamoro", "code": "BARMM", "island_group": "Mindanao"},
+    {"name": "Barangay 1 (Poblacion)", "code": "POB1", "island_group": "Poblacion"},
+    {"name": "Barangay 2 (Poblacion)", "code": "POB2", "island_group": "Poblacion"},
+    {"name": "Barangay 3 (Poblacion)", "code": "POB3", "island_group": "Poblacion"},
+    {"name": "Barangay 4 (Poblacion)", "code": "POB4", "island_group": "Poblacion"},
+    {"name": "Barangay 5 (Poblacion)", "code": "POB5", "island_group": "Poblacion"},
+    {"name": "Awayan", "code": "AWA", "island_group": "Agricultural"},
+    {"name": "Baliuag Nuevo", "code": "BLN", "island_group": "Agricultural"},
+    {"name": "Baliuag Viejo", "code": "BLV", "island_group": "Agricultural"},
+    {"name": "Binanuahan", "code": "BIN", "island_group": "Coastal"},
+    {"name": "Bocogan", "code": "BOC", "island_group": "Upland"},
+    {"name": "Caigdal", "code": "CGD", "island_group": "Agricultural"},
+    {"name": "Damulog", "code": "DAM", "island_group": "Upland"},
+    {"name": "Gabi", "code": "GAB", "island_group": "Agricultural"},
+    {"name": "Gabusan", "code": "GBS", "island_group": "Agricultural"},
+    {"name": "Himanag", "code": "HMN", "island_group": "Coastal"},
+    {"name": "Langka", "code": "LNK", "island_group": "Agricultural"},
+    {"name": "Loho", "code": "LOH", "island_group": "Upland"},
+    {"name": "Manguiring", "code": "MNG", "island_group": "Coastal"},
+    {"name": "Olas", "code": "OLS", "island_group": "Coastal"},
+    {"name": "Omalo", "code": "OMA", "island_group": "Agricultural"},
+    {"name": "Panagan", "code": "PAN", "island_group": "Agricultural"},
+    {"name": "Panicuan", "code": "PNC", "island_group": "Agricultural"},
+    {"name": "San Francisco", "code": "SFC", "island_group": "Upland"},
+    {"name": "San Isidro", "code": "SIS", "island_group": "Agricultural"},
+    {"name": "San Rafael", "code": "SRF", "island_group": "Agricultural"},
+    {"name": "Santa Cruz", "code": "SCZ", "island_group": "Upland"},
+    {"name": "Sipaco", "code": "SPC", "island_group": "Coastal"},
+    {"name": "Sipi", "code": "SPI", "island_group": "Agricultural"},
+    {"name": "Tagas", "code": "TGS", "island_group": "Upland"},
+    {"name": "Tamban", "code": "TMB", "island_group": "Coastal"},
 ]
 
 # ---------------------------------------------------------------------------
-# 222 key Philippine market commodities — compact tuple format:
+# ~87 locally relevant commodities for Lagonoy, Camarines Sur
+#   Focus: Bicol staples, coconut products, Lagonoy Gulf seafood, local vegs
 #   (name, category, unit, base_price_php)
-# Prices sourced from typical DA / Bantay Presyo ranges (PHP, 2024-2025)
 # ---------------------------------------------------------------------------
 _RAW_COMMODITIES: list[tuple[str, str, str, float]] = [
-    # ── Rice (11) ──
-    ("Well-Milled Rice", "Rice", "kg", 48),
-    ("Regular-Milled Rice", "Rice", "kg", 42),
-    ("Premium Rice", "Rice", "kg", 56),
-    ("Special Rice", "Rice", "kg", 62),
-    ("NFA Rice", "Rice", "kg", 38),
-    ("Brown Rice", "Rice", "kg", 65),
-    ("Glutinous Rice (Malagkit)", "Rice", "kg", 55),
-    ("Jasmine Rice", "Rice", "kg", 58),
-    ("Sinandomeng Rice", "Rice", "kg", 52),
-    ("Dinorado Rice", "Rice", "kg", 60),
-    ("Black Rice (Tapol)", "Rice", "kg", 85),
+    # ── Rice & Grains (10) ──
+    ("Well-Milled Rice", "Rice & Grains", "kg", 48),
+    ("Regular-Milled Rice", "Rice & Grains", "kg", 42),
+    ("Premium Rice", "Rice & Grains", "kg", 56),
+    ("NFA Rice", "Rice & Grains", "kg", 38),
+    ("Glutinous Rice (Malagkit)", "Rice & Grains", "kg", 55),
+    ("Sinandomeng Rice", "Rice & Grains", "kg", 52),
+    ("Dinorado Rice", "Rice & Grains", "kg", 60),
+    ("Corn Grits", "Rice & Grains", "kg", 35),
+    ("Mongo (Mung Bean)", "Rice & Grains", "kg", 90),
+    ("Peanut (Mani)", "Rice & Grains", "kg", 110),
 
-    # ── Vegetables (45) ──
-    ("Red Onion", "Vegetables", "kg", 130),
-    ("White Onion", "Vegetables", "kg", 110),
-    ("Garlic (Imported)", "Vegetables", "kg", 140),
-    ("Garlic (Local)", "Vegetables", "kg", 200),
+    # ── Vegetables (20) ──
     ("Tomato", "Vegetables", "kg", 60),
-    ("Eggplant", "Vegetables", "kg", 55),
+    ("Red Onion", "Vegetables", "kg", 130),
+    ("Garlic (Local)", "Vegetables", "kg", 200),
+    ("Eggplant (Talong)", "Vegetables", "kg", 55),
     ("Ampalaya (Bitter Gourd)", "Vegetables", "kg", 80),
     ("Squash (Kalabasa)", "Vegetables", "kg", 35),
-    ("Cabbage", "Vegetables", "kg", 50),
     ("Kangkong (Water Spinach)", "Vegetables", "kg", 30),
     ("Sitaw (String Beans)", "Vegetables", "kg", 70),
-    ("Chili (Labuyo)", "Vegetables", "kg", 250),
-    ("Chili (Siling Haba)", "Vegetables", "kg", 120),
+    ("Chili Labuyo (Siling Labuyo)", "Vegetables", "kg", 250),
+    ("Chili Siling Haba", "Vegetables", "kg", 120),
     ("Ginger (Luya)", "Vegetables", "kg", 120),
-    ("Potato", "Vegetables", "kg", 85),
-    ("Carrots", "Vegetables", "kg", 90),
     ("Pechay (Bok Choy)", "Vegetables", "kg", 40),
-    ("Pechay Baguio (Wombok)", "Vegetables", "kg", 60),
     ("Sayote (Chayote)", "Vegetables", "kg", 35),
-    ("Upo (Bottle Gourd)", "Vegetables", "kg", 30),
-    ("Patola (Sponge Gourd)", "Vegetables", "kg", 45),
-    ("Sweet Potato (Kamote)", "Vegetables", "kg", 40),
-    ("Togue (Mung Bean Sprouts)", "Vegetables", "kg", 35),
-    ("Malunggay (Moringa)", "Vegetables", "kg", 60),
     ("Okra", "Vegetables", "kg", 65),
-    ("Green Beans (Habitchuelas)", "Vegetables", "kg", 75),
-    ("Lettuce (Iceberg)", "Vegetables", "kg", 120),
-    ("Lettuce (Romaine)", "Vegetables", "kg", 140),
-    ("Bell Pepper (Green)", "Vegetables", "kg", 100),
-    ("Bell Pepper (Red)", "Vegetables", "kg", 150),
-    ("Cucumber", "Vegetables", "kg", 40),
-    ("Radish (Labanos)", "Vegetables", "kg", 50),
-    ("Mushroom (Oyster)", "Vegetables", "kg", 160),
-    ("Mushroom (Button)", "Vegetables", "kg", 200),
-    ("Spring Onion", "Vegetables", "kg", 80),
-    ("Celery", "Vegetables", "kg", 120),
-    ("Broccoli", "Vegetables", "kg", 180),
-    ("Cauliflower", "Vegetables", "kg", 150),
-    ("Spinach", "Vegetables", "kg", 100),
+    ("Malunggay (Moringa)", "Vegetables", "kg", 60),
+    ("Sweet Potato (Kamote)", "Vegetables", "kg", 40),
+    ("Gabi (Taro)", "Vegetables", "kg", 45),
     ("Puso ng Saging (Banana Heart)", "Vegetables", "kg", 45),
-    ("Langka (Green Jackfruit)", "Vegetables", "kg", 60),
-    ("Talbos ng Sayote", "Vegetables", "kg", 50),
     ("Saluyot (Jute Leaves)", "Vegetables", "kg", 55),
     ("Alugbati (Malabar Spinach)", "Vegetables", "kg", 50),
-    ("Sigarilyas (Winged Bean)", "Vegetables", "kg", 80),
 
-    # ── Meat (20) ──
+    # ── Fish & Seafood — Lagonoy Gulf (18) ──
+    ("Galunggong (Round Scad)", "Fish & Seafood", "kg", 160),
+    ("Tulingan (Skipjack Tuna)", "Fish & Seafood", "kg", 200),
+    ("Tambakol (Yellowfin Tuna)", "Fish & Seafood", "kg", 250),
+    ("Bangus (Milkfish)", "Fish & Seafood", "kg", 170),
+    ("Tilapia", "Fish & Seafood", "kg", 120),
+    ("Lapu-Lapu (Grouper)", "Fish & Seafood", "kg", 400),
+    ("Maya-Maya (Red Snapper)", "Fish & Seafood", "kg", 350),
+    ("Hipon (Shrimp)", "Fish & Seafood", "kg", 280),
+    ("Pusit (Squid)", "Fish & Seafood", "kg", 260),
+    ("Alimasag (Blue Crab)", "Fish & Seafood", "kg", 280),
+    ("Tahong (Green Mussel)", "Fish & Seafood", "kg", 120),
+    ("Talaba (Oyster)", "Fish & Seafood", "kg", 150),
+    ("Dilis (Anchovies)", "Fish & Seafood", "kg", 180),
+    ("Hasa-Hasa (Short Mackerel)", "Fish & Seafood", "kg", 140),
+    ("Tanigue (Spanish Mackerel)", "Fish & Seafood", "kg", 380),
+    ("Tuyo (Dried Herring)", "Fish & Seafood", "kg", 200),
+    ("Tinapa (Smoked Fish)", "Fish & Seafood", "kg", 180),
+    ("Dried Dilis", "Fish & Seafood", "kg", 250),
+
+    # ── Meat (10) ──
     ("Pork Liempo", "Meat", "kg", 325),
     ("Pork Kasim", "Meat", "kg", 280),
     ("Pork Pata", "Meat", "kg", 230),
-    ("Pork Spare Ribs", "Meat", "kg", 290),
-    ("Pork Tenderloin", "Meat", "kg", 340),
     ("Ground Pork", "Meat", "kg", 270),
-    ("Pork Chop", "Meat", "kg", 300),
-    ("Pork Belly (Skin-on)", "Meat", "kg", 310),
     ("Whole Chicken", "Meat", "kg", 190),
     ("Chicken Breast", "Meat", "kg", 210),
     ("Chicken Thigh", "Meat", "kg", 185),
-    ("Chicken Wings", "Meat", "kg", 200),
-    ("Chicken Liver", "Meat", "kg", 160),
-    ("Chicken Gizzard", "Meat", "kg", 150),
     ("Beef Brisket", "Meat", "kg", 380),
-    ("Beef Rump", "Meat", "kg", 400),
-    ("Beef Round", "Meat", "kg", 420),
-    ("Ground Beef", "Meat", "kg", 350),
     ("Beef Shank (Bulalo)", "Meat", "kg", 360),
     ("Goat Meat (Chevon)", "Meat", "kg", 400),
 
-    # ── Fish & Seafood (35) ──
-    ("Bangus (Milkfish)", "Fish & Seafood", "kg", 170),
-    ("Tilapia", "Fish & Seafood", "kg", 120),
-    ("Galunggong (Round Scad)", "Fish & Seafood", "kg", 160),
-    ("Alumahan (Long-jawed Mackerel)", "Fish & Seafood", "kg", 200),
-    ("Shrimp (Suahe)", "Fish & Seafood", "kg", 350),
-    ("Shrimp (Tiger Prawn)", "Fish & Seafood", "kg", 500),
-    ("Squid (Pusit)", "Fish & Seafood", "kg", 280),
-    ("Maya-Maya (Red Snapper)", "Fish & Seafood", "kg", 350),
-    ("Lapu-Lapu (Grouper)", "Fish & Seafood", "kg", 400),
-    ("Dilis (Anchovies)", "Fish & Seafood", "kg", 180),
-    ("Tulingan (Skipjack Tuna)", "Fish & Seafood", "kg", 200),
-    ("Tambakol (Yellowfin Tuna)", "Fish & Seafood", "kg", 250),
-    ("Tanigue (Spanish Mackerel)", "Fish & Seafood", "kg", 380),
-    ("Hasa-Hasa (Short Mackerel)", "Fish & Seafood", "kg", 140),
-    ("Espada (Swordfish)", "Fish & Seafood", "kg", 300),
-    ("Pampano (Pompano)", "Fish & Seafood", "kg", 350),
-    ("Bisugo (Threadfin Bream)", "Fish & Seafood", "kg", 220),
-    ("Crab (Alimasag)", "Fish & Seafood", "kg", 280),
-    ("Crab (Alimango)", "Fish & Seafood", "kg", 600),
-    ("Tahong (Green Mussel)", "Fish & Seafood", "kg", 120),
-    ("Talaba (Oyster)", "Fish & Seafood", "kg", 150),
-    ("Halaan (Clam)", "Fish & Seafood", "kg", 130),
-    ("Hipon (Small Shrimp)", "Fish & Seafood", "kg", 200),
-    ("Tuyo (Dried Herring)", "Fish & Seafood", "kg", 200),
-    ("Dried Dilis (Dried Anchovies)", "Fish & Seafood", "kg", 250),
-    ("Dried Pusit (Dried Squid)", "Fish & Seafood", "kg", 400),
-    ("Tinapa (Smoked Fish)", "Fish & Seafood", "kg", 180),
-    ("Sardines (Fresh)", "Fish & Seafood", "kg", 140),
-    ("Daing na Bangus", "Fish & Seafood", "kg", 220),
-    ("Danggit (Rabbitfish, Dried)", "Fish & Seafood", "kg", 600),
-    ("Sapsap (Ponyfish)", "Fish & Seafood", "kg", 120),
-    ("Salay-Salay (Yellowstriped Scad)", "Fish & Seafood", "kg", 160),
-    ("Tambakol Belly", "Fish & Seafood", "kg", 180),
-    ("Kitang (Spotted Herring)", "Fish & Seafood", "kg", 150),
-    ("Matambaka (Big-eye Scad)", "Fish & Seafood", "kg", 170),
-
-    # ── Fruits (28) ──
-    ("Banana (Lakatan)", "Fruits", "kg", 65),
-    ("Banana (Latundan)", "Fruits", "kg", 50),
+    # ── Fruits (10) ──
     ("Banana (Saba/Cooking)", "Fruits", "kg", 55),
+    ("Banana (Lakatan)", "Fruits", "kg", 65),
     ("Calamansi", "Fruits", "kg", 80),
-    ("Mango (Carabao)", "Fruits", "kg", 100),
-    ("Mango (Indian)", "Fruits", "kg", 80),
     ("Papaya", "Fruits", "kg", 45),
-    ("Pineapple", "Fruits", "kg", 50),
-    ("Watermelon", "Fruits", "kg", 35),
-    ("Melon (Cantaloupe)", "Fruits", "kg", 60),
-    ("Apple (Fuji, Imported)", "Fruits", "kg", 150),
-    ("Apple (Green, Imported)", "Fruits", "kg", 160),
-    ("Orange (Imported)", "Fruits", "kg", 120),
-    ("Grapes (Red, Imported)", "Fruits", "kg", 200),
-    ("Grapes (Green, Imported)", "Fruits", "kg", 220),
-    ("Pear (Imported)", "Fruits", "kg", 140),
-    ("Lemon", "Fruits", "kg", 120),
-    ("Avocado", "Fruits", "kg", 100),
-    ("Guava (Bayabas)", "Fruits", "kg", 70),
     ("Coconut (Buko)", "Fruits", "pc", 40),
-    ("Rambutan", "Fruits", "kg", 80),
-    ("Lanzones", "Fruits", "kg", 90),
-    ("Mangosteen", "Fruits", "kg", 120),
-    ("Durian", "Fruits", "kg", 150),
+    ("Pineapple", "Fruits", "kg", 50),
+    ("Mango (Carabao)", "Fruits", "kg", 100),
     ("Jackfruit (Langka)", "Fruits", "kg", 70),
-    ("Dalandan (Native Orange)", "Fruits", "kg", 60),
-    ("Pomelo (Suha)", "Fruits", "kg", 80),
-    ("Atis (Sugar Apple)", "Fruits", "kg", 100),
+    ("Watermelon", "Fruits", "kg", 35),
+    ("Avocado", "Fruits", "kg", 100),
 
-    # ── Poultry & Dairy (16) ──
-    ("Egg (Large)", "Poultry & Dairy", "pc", 8),
-    ("Egg (Medium)", "Poultry & Dairy", "pc", 7),
-    ("Egg (Small)", "Poultry & Dairy", "pc", 6),
-    ("Salted Egg (Itlog na Maalat)", "Poultry & Dairy", "pc", 12),
-    ("Quail Egg (Itlog ng Pugo)", "Poultry & Dairy", "pc", 2),
-    ("Fresh Milk (Full Cream)", "Poultry & Dairy", "L", 95),
-    ("Fresh Milk (Low Fat)", "Poultry & Dairy", "L", 90),
-    ("Evaporated Milk", "Poultry & Dairy", "can", 38),
-    ("Condensed Milk", "Poultry & Dairy", "can", 42),
-    ("Powdered Milk (Full Cream)", "Poultry & Dairy", "kg", 450),
-    ("Cheese (Eden)", "Poultry & Dairy", "pc", 45),
-    ("Cheese (Quickmelt)", "Poultry & Dairy", "kg", 280),
-    ("Butter (Salted)", "Poultry & Dairy", "kg", 500),
-    ("Margarine", "Poultry & Dairy", "kg", 180),
-    ("Yogurt (Plain)", "Poultry & Dairy", "cup", 60),
-    ("Kesong Puti (White Cheese)", "Poultry & Dairy", "pc", 50),
+    # ── Coconut Products — Bicol specialty (6) ──
+    ("Copra", "Coconut Products", "kg", 38),
+    ("Coconut Oil (Virgin)", "Coconut Products", "L", 180),
+    ("Coconut Milk (Gata)", "Coconut Products", "L", 80),
+    ("Coconut Cream", "Coconut Products", "L", 110),
+    ("Desiccated Coconut", "Coconut Products", "kg", 160),
+    ("Coco Sugar", "Coconut Products", "kg", 200),
 
-    # ── Spices & Condiments (22) ──
+    # ── Eggs & Dairy (5) ──
+    ("Egg (Large)", "Eggs & Dairy", "pc", 8),
+    ("Egg (Medium)", "Eggs & Dairy", "pc", 7),
+    ("Salted Egg (Itlog na Maalat)", "Eggs & Dairy", "pc", 12),
+    ("Evaporated Milk", "Eggs & Dairy", "can", 38),
+    ("Condensed Milk", "Eggs & Dairy", "can", 42),
+
+    # ── Spices & Condiments (8) ──
     ("Salt (Iodized)", "Spices & Condiments", "kg", 25),
-    ("Salt (Rock)", "Spices & Condiments", "kg", 20),
-    ("Black Pepper (Ground)", "Spices & Condiments", "kg", 600),
-    ("White Pepper (Ground)", "Spices & Condiments", "kg", 700),
     ("Soy Sauce", "Spices & Condiments", "bottle", 30),
-    ("Vinegar (Cane)", "Spices & Condiments", "bottle", 25),
     ("Vinegar (Coconut)", "Spices & Condiments", "bottle", 35),
     ("Fish Sauce (Patis)", "Spices & Condiments", "bottle", 30),
     ("Bagoong (Shrimp Paste)", "Spices & Condiments", "bottle", 80),
-    ("Bagoong (Alamang)", "Spices & Condiments", "bottle", 70),
-    ("Oyster Sauce", "Spices & Condiments", "bottle", 55),
+    ("Cooking Oil (Coconut)", "Spices & Condiments", "L", 85),
+    ("Cooking Oil (Palm)", "Spices & Condiments", "L", 72),
     ("Banana Ketchup", "Spices & Condiments", "bottle", 35),
-    ("Tomato Sauce", "Spices & Condiments", "bottle", 30),
-    ("Bay Leaf (Laurel)", "Spices & Condiments", "pack", 15),
-    ("Pandan Leaf", "Spices & Condiments", "bundle", 10),
-    ("Lemongrass (Tanglad)", "Spices & Condiments", "bundle", 15),
-    ("Turmeric (Luyang Dilaw)", "Spices & Condiments", "kg", 100),
-    ("Annatto Seeds (Atsuete)", "Spices & Condiments", "pack", 10),
-    ("Worcestershire Sauce", "Spices & Condiments", "bottle", 65),
-    ("Chili Flakes", "Spices & Condiments", "pack", 25),
-    ("Sesame Oil", "Spices & Condiments", "bottle", 85),
-    ("Coco Aminos", "Spices & Condiments", "bottle", 120),
-
-    # ── Canned & Processed (24) ──
-    ("Sardines (Canned)", "Canned & Processed", "can", 22),
-    ("Corned Beef (Canned)", "Canned & Processed", "can", 50),
-    ("Tuna Flakes (Canned)", "Canned & Processed", "can", 35),
-    ("Meat Loaf (Canned)", "Canned & Processed", "can", 40),
-    ("Luncheon Meat", "Canned & Processed", "can", 85),
-    ("Vienna Sausage", "Canned & Processed", "can", 30),
-    ("Hotdog (Regular)", "Canned & Processed", "kg", 160),
-    ("Hotdog (Jumbo)", "Canned & Processed", "kg", 200),
-    ("Tocino", "Canned & Processed", "kg", 260),
-    ("Longganisa", "Canned & Processed", "kg", 280),
-    ("Tapa", "Canned & Processed", "kg", 350),
-    ("Bacon", "Canned & Processed", "kg", 380),
-    ("Ham", "Canned & Processed", "kg", 300),
-    ("Bihon (Rice Noodles)", "Canned & Processed", "pack", 45),
-    ("Sotanghon (Glass Noodles)", "Canned & Processed", "pack", 55),
-    ("Canton Noodles", "Canned & Processed", "pack", 40),
-    ("Misua (Thin Wheat Noodles)", "Canned & Processed", "pack", 50),
-    ("Spaghetti Pasta", "Canned & Processed", "pack", 55),
-    ("Macaroni Pasta", "Canned & Processed", "pack", 55),
-    ("Instant Noodles", "Canned & Processed", "pack", 12),
-    ("Instant Coffee (3-in-1)", "Canned & Processed", "pack", 8),
-    ("Tablea (Chocolate)", "Canned & Processed", "pack", 60),
-    ("Peanut Butter", "Canned & Processed", "bottle", 80),
-    ("Dried Mango", "Canned & Processed", "pack", 120),
-
-    # ── Other Essentials (21) ──
-    ("Cooking Oil (Palm)", "Other Essentials", "L", 72),
-    ("Cooking Oil (Coconut)", "Other Essentials", "L", 85),
-    ("Cooking Oil (Canola)", "Other Essentials", "L", 120),
-    ("Cooking Oil (Vegetable)", "Other Essentials", "L", 75),
-    ("Refined Sugar", "Other Essentials", "kg", 75),
-    ("Brown Sugar", "Other Essentials", "kg", 65),
-    ("Muscovado Sugar", "Other Essentials", "kg", 80),
-    ("Coconut Milk (Gata)", "Other Essentials", "can", 40),
-    ("Coconut Cream", "Other Essentials", "can", 55),
-    ("All-Purpose Flour", "Other Essentials", "kg", 48),
-    ("Bread Flour", "Other Essentials", "kg", 52),
-    ("Cornstarch", "Other Essentials", "kg", 65),
-    ("Baking Powder", "Other Essentials", "can", 35),
-    ("Baking Soda", "Other Essentials", "pack", 15),
-    ("Tofu (Tokwa)", "Other Essentials", "pc", 15),
-    ("Pandesal", "Other Essentials", "pc", 3),
-    ("Lard (Mantika)", "Other Essentials", "kg", 80),
-    ("Cassava (Kamoteng Kahoy)", "Other Essentials", "kg", 40),
-    ("Desiccated Coconut", "Other Essentials", "kg", 160),
-    ("Achuete Oil", "Other Essentials", "bottle", 35),
-    ("Banana Chips", "Other Essentials", "pack", 60),
 ]
 
 # Derived structures -------------------------------------------------------
@@ -296,84 +174,56 @@ BASE_PRICES: dict[str, Decimal] = {
 }
 
 # ---------------------------------------------------------------------------
-# One representative public market per region
+# Markets in Lagonoy  (primary public market + satellite buying stations)
 # ---------------------------------------------------------------------------
 SEED_MARKETS = [
-    {"name": "Commonwealth Market", "region_code": "NCR", "type": "wet", "address": "Quezon City"},
-    {"name": "Baguio City Public Market", "region_code": "CAR", "type": "wet", "address": "Baguio City"},
-    {"name": "Vigan Public Market", "region_code": "R01", "type": "wet", "address": "Vigan, Ilocos Sur"},
-    {"name": "Tuguegarao Center Market", "region_code": "R02", "type": "wet", "address": "Tuguegarao, Cagayan"},
-    {"name": "Pampanga Public Market", "region_code": "R03", "type": "wet", "address": "San Fernando, Pampanga"},
-    {"name": "Lucena Grand Central Market", "region_code": "R04A", "type": "wet", "address": "Lucena City, Quezon"},
-    {
-        "name": "Puerto Princesa Main Market",
-        "region_code": "R04B",
-        "type": "wet",
-        "address": "Puerto Princesa, Palawan",
-    },
-    {"name": "Naga City Public Market", "region_code": "R05", "type": "wet", "address": "Naga City, Camarines Sur"},
-    {"name": "Iloilo Terminal Market", "region_code": "R06", "type": "wet", "address": "Iloilo City"},
-    {"name": "Carbon Public Market", "region_code": "R07", "type": "wet", "address": "Cebu City"},
-    {"name": "Tacloban Public Market", "region_code": "R08", "type": "wet", "address": "Tacloban City, Leyte"},
-    {"name": "Zamboanga City Central Market", "region_code": "R09", "type": "wet", "address": "Zamboanga City"},
-    {"name": "Cogon Market", "region_code": "R10", "type": "wet", "address": "Cagayan de Oro, Misamis Oriental"},
-    {"name": "Bankerohan Public Market", "region_code": "R11", "type": "wet", "address": "Davao City"},
-    {"name": "General Santos Public Market", "region_code": "R12", "type": "wet", "address": "General Santos City"},
-    {
-        "name": "Butuan City Central Market",
-        "region_code": "R13",
-        "type": "wet",
-        "address": "Butuan City, Agusan del Norte",
-    },
-    {"name": "Cotabato City Public Market", "region_code": "BARMM", "type": "wet", "address": "Cotabato City"},
+    {"name": "Lagonoy Public Market", "region_code": "POB1", "type": "wet", "address": "Poblacion, Lagonoy, Camarines Sur"},
+    {"name": "Lagonoy Dry Goods Market", "region_code": "POB2", "type": "dry", "address": "Poblacion, Lagonoy, Camarines Sur"},
+    {"name": "Binanuahan Fish Landing", "region_code": "BIN", "type": "fish_port", "address": "Binanuahan, Lagonoy, Camarines Sur"},
+    {"name": "Himanag Coastal Market", "region_code": "HMN", "type": "wet", "address": "Himanag, Lagonoy, Camarines Sur"},
+    {"name": "San Isidro Buying Station", "region_code": "SIS", "type": "buying_station", "address": "San Isidro, Lagonoy, Camarines Sur"},
 ]
 
 # ---------------------------------------------------------------------------
 # Volatility & spread multipliers per category
 # ---------------------------------------------------------------------------
 _CATEGORY_VOLATILITY: dict[str, float] = {
-    "Rice": 0.006,
+    "Rice & Grains": 0.006,
     "Vegetables": 0.025,
+    "Fish & Seafood": 0.022,
     "Meat": 0.008,
-    "Fish & Seafood": 0.020,
     "Fruits": 0.018,
-    "Poultry & Dairy": 0.010,
+    "Coconut Products": 0.015,
+    "Eggs & Dairy": 0.010,
     "Spices & Condiments": 0.007,
-    "Canned & Processed": 0.005,
-    "Other Essentials": 0.007,
 }
 
 _CATEGORY_SPREAD: dict[str, Decimal] = {
-    "Rice": Decimal("0.04"),
+    "Rice & Grains": Decimal("0.04"),
     "Vegetables": Decimal("0.08"),
+    "Fish & Seafood": Decimal("0.07"),
     "Meat": Decimal("0.03"),
-    "Fish & Seafood": Decimal("0.06"),
     "Fruits": Decimal("0.07"),
-    "Poultry & Dairy": Decimal("0.04"),
+    "Coconut Products": Decimal("0.05"),
+    "Eggs & Dairy": Decimal("0.04"),
     "Spices & Condiments": Decimal("0.03"),
-    "Canned & Processed": Decimal("0.02"),
-    "Other Essentials": Decimal("0.03"),
 }
 
-# Regional price adjustments (percentage of base price)
+# Barangay zone price adjustments
 _REGION_PCT: dict[str, float] = {
-    "NCR": 0.06,
-    "CAR": -0.02,
-    "R01": -0.01,
-    "R02": -0.04,
-    "R03": 0.03,
-    "R04A": 0.04,
-    "R04B": 0.05,
-    "R05": -0.02,
-    "R06": -0.01,
-    "R07": 0.01,
-    "R08": -0.03,
-    "R09": -0.02,
-    "R10": 0.00,
-    "R11": 0.01,
-    "R12": -0.03,
-    "R13": -0.04,
-    "BARMM": -0.01,
+    "POB1": 0.03, "POB2": 0.03, "POB3": 0.02, "POB4": 0.02, "POB5": 0.01,
+    "AWA": -0.02, "BLN": -0.03, "BLV": -0.03,
+    "BIN": -0.01, "BOC": -0.04,
+    "CGD": -0.02, "DAM": -0.04,
+    "GAB": -0.02, "GBS": -0.03,
+    "HMN": 0.00, "LNK": -0.02,
+    "LOH": -0.04, "MNG": -0.01,
+    "OLS": -0.01, "OMA": -0.03,
+    "PAN": -0.02, "PNC": -0.02,
+    "SFC": -0.04, "SIS": -0.01,
+    "SRF": -0.02, "SCZ": -0.03,
+    "SPC": 0.00, "SPI": -0.02,
+    "TGS": -0.03, "TMB": -0.01,
 }
 
 HISTORY_DAYS = 90
@@ -387,7 +237,7 @@ def _deterministic_noise(seed_str: str, day: int) -> float:
 
 async def seed_reference_data(session: AsyncSession) -> None:
     # ------------------------------------------------------------------
-    # 1. Regions
+    # 1. Barangays (stored in regions table)
     # ------------------------------------------------------------------
     region_count = await session.scalar(select(func.count(Region.id)))
     if region_count == 0:
@@ -403,7 +253,7 @@ async def seed_reference_data(session: AsyncSession) -> None:
         await session.flush()
 
     # ------------------------------------------------------------------
-    # 3. Markets (one per region)
+    # 3. Markets
     # ------------------------------------------------------------------
     market_count = await session.scalar(select(func.count(Market.id)))
     if market_count == 0:
@@ -438,7 +288,6 @@ async def seed_reference_data(session: AsyncSession) -> None:
 
         start_date = datetime.now(UTC).date() - timedelta(days=HISTORY_DAYS - 1)
 
-        # Build all records in memory, then bulk-insert
         records: list[DailyPrice] = []
 
         for market in markets:
@@ -483,11 +332,10 @@ async def seed_reference_data(session: AsyncSession) -> None:
                             price_avg=prevailing,
                             price_prevailing=prevailing,
                             date=current_date,
-                            source="DA-BPI",
+                            source="MAO-Lagonoy",
                         )
                     )
 
-        # Bulk-insert in batches to avoid memory pressure
         batch_size = 10000
         for i in range(0, len(records), batch_size):
             session.add_all(records[i : i + batch_size])

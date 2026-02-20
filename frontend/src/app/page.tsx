@@ -38,9 +38,9 @@ export default async function HomePage() {
             <LayoutDashboard size={22} />
           </div>
           <div>
-            <h1>Smart Palengke Dashboard</h1>
+            <h1>Lagonoy Agricultural Price Dashboard</h1>
             <p className="subtitle">
-              Real-time commodity price intelligence across Philippine regions.
+              Real-time commodity price intelligence for Lagonoy, Camarines Sur.
             </p>
           </div>
         </div>
@@ -67,13 +67,13 @@ export default async function HomePage() {
 
         <div className="card kpi kpi-accent-red">
           <div className="kpi-top">
-            <p className="kpi-label">Regions</p>
+            <p className="kpi-label">Barangays</p>
             <div className="kpi-icon kpi-icon-red">
               <MapPin size={20} />
             </div>
           </div>
           <p className="kpi-value">{regions.length}</p>
-          <p className="kpi-detail">Philippine regions</p>
+          <p className="kpi-detail">Lagonoy barangays</p>
         </div>
 
         <div className="card kpi kpi-accent-yellow">
